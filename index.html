@@ -623,10 +623,15 @@ footer p{margin:0 0 7px}
    controls pane scrolls. Taller than wide: viewport on top. Wider than
    tall: viewport left, controls right. */
 [hidden]{display:none !important}
-html,body{height:100%}
-body{overflow:hidden;overscroll-behavior:none}
+html,body{height:100%;overflow:hidden}
+body{overscroll-behavior:none}
+/* Pinned to the screen, not the page. iOS scrolls the page to show a
+   focused text field and doesn't always scroll it back; a fixed shell
+   can't be moved by that, so the layout can never get stranded. */
 .app{
-  height:100%;display:grid;
+  position:fixed;inset:0;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  display:grid;
   grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto auto auto minmax(0,1fr);
   grid-template-areas:"head" "tabs" "stage" "ctrl";
@@ -3138,8 +3143,9 @@ function cancelBoardDrag(){
     else { vp.tx -= e.deltaX; vp.ty -= e.deltaY; vp.fitted = false; clampVP(); applyVP(); rememberVP(); }
   }, { passive: false });
 
-  // Safari's own page-zoom gesture must not fight the viewport
-  stage.addEventListener("gesturestart", e => e.preventDefault());
+  // Safari's page-zoom gesture must not fight the viewport, and a pinch
+  // on the controls must not zoom the whole app out of shape either
+  document.addEventListener("gesturestart", e => e.preventDefault());
 
   $("fitbtn").addEventListener("click", () => fitVP());
 
@@ -3148,6 +3154,30 @@ function cancelBoardDrag(){
   if (window.ResizeObserver) new ResizeObserver(relayout).observe($("app"));
   window.addEventListener("resize", relayout);
   window.addEventListener("orientationchange", () => setTimeout(relayout, 120));
+
+  /* The on-screen keyboard. iOS may scroll the page while a field is
+     focused and leave it scrolled, and doesn't always report the keyboard
+     closing. So whenever focus leaves a text field, the visible area
+     changes, or the app comes back to the foreground: put the page back
+     at the top and re-measure the layout. */
+  const typing = () => {
+    const a = document.activeElement;
+    return !!a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== "range" && a.type !== "checkbox";
+  };
+  const settle = () => {
+    if (typing()) return;
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+    const se = document.scrollingElement;
+    if (se && se.scrollTop) se.scrollTop = 0;
+    relayout();
+  };
+  document.addEventListener("focusout", () => setTimeout(settle, 80));
+  if (window.visualViewport) {
+    visualViewport.addEventListener("resize", () => setTimeout(settle, 80));
+    visualViewport.addEventListener("scroll", () => setTimeout(settle, 80));
+  }
+  window.addEventListener("pageshow", settle);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) settle(); });
   relayout();
 })();
 
