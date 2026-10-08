@@ -1,7 +1,7 @@
 /* Beadboard service worker.
    Everything the app needs is in index.html, so the cache is tiny.
    Bump CACHE when you upload a new index.html, or the old one is served. */
-const CACHE = "beadboard-v12";
+const CACHE = "beadboard-v13";
 const ASSETS = [
   "./",
   "./index.html",

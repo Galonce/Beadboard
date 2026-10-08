@@ -526,7 +526,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:3
 .fr span{color:var(--ink-soft)}
 .quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
 .quick button{
-  font:500 12.5px var(--mono);padding:5px 9px;cursor:pointer;
+  font:500 13px var(--ui);font-variant-numeric:tabular-nums;padding:6px 10px;cursor:pointer;
   border:1px solid var(--rule);border-radius:var(--radius);
   background:var(--ground);color:var(--ink-soft);
 }
@@ -574,6 +574,13 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .lib .ldim{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
 .lib .ldel{background:none;border:0;color:var(--ink-soft);cursor:pointer;font:500 15px var(--ui);padding:0 3px}
 .librow{display:flex;gap:7px;margin-top:9px}
+.boardpick{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
+.boardpick .quick{margin-top:0}
+.lib li.libconfirm{flex-wrap:wrap;gap:8px 10px}
+.lib li.libconfirm .lname{white-space:normal;flex:1 1 140px;font-weight:500}
+.lib .lyes,.lib .lno{font:600 12.5px var(--ui);border-radius:var(--radius);padding:7px 12px;cursor:pointer;flex:none}
+.lib .lyes{background:var(--accent);color:var(--accent-ink);border:0}
+.lib .lno{background:none;border:1px solid var(--rule);color:var(--ink)}
 .librow .pick{margin-top:0}
 #libfile{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .parentbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:12px 0 0;padding:9px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
@@ -761,6 +768,10 @@ footer p{margin:0 0 7px}
 
     <details class="panel sec" data-sec="board" id="boardpanel" hidden open>
       <summary><h2>Board layout</h2></summary>
+      <div class="boardpick">
+        <span class="pbnote">Board</span>
+        <div class="quick" id="boardsizes"></div>
+      </div>
       <p class="note-top">Tap a design in the library to drop it on the board, then drag it. One empty peg is always kept between designs.</p>
       <div class="quick" id="boardtools">
         <button type="button" id="bt-rot">Rotate</button>
@@ -827,13 +838,13 @@ footer p{margin:0 0 7px}
 
       <div class="ctl">
         <label for="w">Width in beads <span class="val" id="wv">58</span></label>
-        <input type="range" id="w" min="16" max="256" value="58" step="1">
+        <input type="range" id="w" min="4" max="256" value="58" step="1">
         <span class="note" id="wnote"></span>
       </div>
 
       <div class="ctl">
         <label for="h">Height in beads <span class="val" id="hv">44</span></label>
-        <input type="range" id="h" min="16" max="256" value="44" step="1" disabled>
+        <input type="range" id="h" min="4" max="256" value="44" step="1" disabled>
         <span class="note">Unlock proportions to set this. The photo is cropped from the centre to fit, never stretched.</span>
       </div>
 
@@ -1527,7 +1538,7 @@ function render(){
   if (swapFrom === null) renderSwapList();
   $("s-size").textContent = (gw*2.6/10).toFixed(1) + " × " + (gh*2.6/10).toFixed(1) + " cm";
   $("wnote").textContent = `${gw} × ${gh} beads — about ${(gw*2.6/10).toFixed(1)} × ${(gh*2.6/10).toFixed(1)} cm finished`;
-  if ($("link").checked) { $("hv").textContent = gh; $("h").value = Math.min(256, Math.max(16, gh)); }
+  if ($("link").checked) { $("hv").textContent = gh; $("h").value = Math.min(256, Math.max(4, gh)); }
 
   $("beadcount").textContent = counts.length ? counts.length + (counts.length > 1 ? " colours" : " colour") : "";
   const ul = $("list");
@@ -1610,7 +1621,7 @@ function adoptSource(img, isPng){
   if (!small) { if (!crop) say(""); return; }
   $("link").checked = true;
   $("h").disabled = true;
-  $("w").value = Math.max(16, Math.min(256, w));
+  $("w").value = Math.max(4, Math.min(256, w));
   $("wv").textContent = $("w").value;
   $("smooth").checked = false;
   $("cull").value = 0; $("cullv").textContent = "0";
@@ -1936,6 +1947,7 @@ function makePDF(W, H, cells, title, gridOpt){
 
 const LIB_KEY = "beadboard:library";
 let library = [];          // {id, name, w, h, rle}
+let pendingDelete = null;  // library id awaiting confirmation
 let placed  = [];          // {lib, x, y, rot, flip, w, h, cells}
 let selected = -1;
 
@@ -2051,11 +2063,35 @@ function renderLibrary(){
     del.className = "ldel"; del.type = "button"; del.textContent = "×"; del.title = "Delete";
     del.addEventListener("click", e => {
       e.stopPropagation();
-      library = library.filter(d => d.id !== entry.id);
-      placed = placed.filter(pl => pl.lib !== entry.id);
-      selected = -1;
-      saveLibrary(); renderLibrary(); drawBoard(); renderBoardStats();
+      pendingDelete = entry.id;
+      renderLibrary();
     });
+
+    /* Asked in the row itself, not a pop-up: browser dialogs are blocked
+       silently in some viewers, which is how saving once failed. */
+    if (entry.id === pendingDelete) {
+      li.className = "libconfirm";
+      li.style.cursor = "default";
+      const onBoard = placed.some(pl => pl.lib === entry.id);
+      const q = document.createElement("span"); q.className = "lname";
+      q.textContent = `Delete \u201C${entry.name}\u201D?` + (onBoard ? " It also comes off the board." : "");
+      const yes = document.createElement("button"); yes.type = "button"; yes.className = "lyes"; yes.textContent = "Delete";
+      yes.addEventListener("click", e => {
+        e.stopPropagation();
+        library = library.filter(d => d.id !== entry.id);
+        placed = placed.filter(pl => pl.lib !== entry.id);
+        selected = -1; pendingDelete = null;
+        saveLibrary(); renderLibrary(); drawBoard(); renderBoardStats();
+        $("libmsg").textContent = `Deleted \u201C${entry.name}\u201D.`;
+      });
+      const no = document.createElement("button"); no.type = "button"; no.className = "lno"; no.textContent = "Keep";
+      no.addEventListener("click", e => { e.stopPropagation(); pendingDelete = null; renderLibrary(); });
+      li.append(cv, q, yes, no);
+      li.addEventListener("click", e => e.stopPropagation());
+      ul.append(li);
+      continue;
+    }
+
     li.append(cv, nm, dm, del);
     li.addEventListener("click", () => addToBoard(entry));
     ul.append(li);
@@ -2119,11 +2155,22 @@ function fits(pl, x, y, skip){
   return true;
 }
 
-function findSpot(pl){
+/* First legal spot, scanning top to bottom, left to right. The occupancy
+   map (every bead plus its one-peg halo) is built once, and only the
+   design's actual beads are tested, so odd shapes can tuck into gaps. */
+function findSpot(pl, skip = -1){
   const bs = boardSize() || 52;
+  const occ = occupancy(skip);
+  const beads = [];
+  for (let y = 0; y < pl.h; y++) for (let x = 0; x < pl.w; x++)
+    if (pl.cells[y*pl.w + x] !== EMPTY) beads.push(y*bs + x);
   for (let y = 0; y + pl.h <= bs; y++)
-    for (let x = 0; x + pl.w <= bs; x++)
-      if (fits(pl, x, y, -1)) return { x, y };
+    for (let x = 0; x + pl.w <= bs; x++) {
+      const o = y*bs + x;
+      let ok = true;
+      for (const b of beads) if (occ[o + b]) { ok = false; break; }
+      if (ok) return { x, y };
+    }
   return null;
 }
 
@@ -2140,21 +2187,25 @@ function addToBoard(entry){
   setView("board"); drawBoard(); renderBoardStats();
 }
 
+/* Largest designs first, each into the first spot that fits. If even one
+   can't be placed, the whole layout is put back exactly as it was: a
+   half-applied arrangement could leave designs overlapping. */
 function packBoard(){
-  const bs = boardSize() || 52;
-  const order = placed.map((pl,i)=>i).sort((a,b)=>placed[b].h - placed[a].h);
-  const done = [];
-  let cx = 0, cy = 0, shelf = 0, failed = 0;
-  for (const i of order) {
-    const pl = placed[i];
-    if (cx + pl.w > bs) { cx = 0; cy += shelf + 1; shelf = 0; }
-    if (cy + pl.h > bs) { failed++; continue; }
-    pl.x = cx; pl.y = cy;
-    cx += pl.w + 1;
-    if (pl.h > shelf) shelf = pl.h;
-    done.push(i);
+  if (!placed.length) return;
+  const before = placed.map(pl => ({ pl, x: pl.x, y: pl.y }));
+  const order = placed.slice().sort((a, b) => (b.w*b.h) - (a.w*a.h) || b.h - a.h);
+  placed = [];
+  let failed = 0;
+  for (const pl of order) {
+    const spot = findSpot(pl);
+    if (spot) { pl.x = spot.x; pl.y = spot.y; placed.push(pl); }
+    else failed++;
   }
-  $("bmsg").textContent = failed ? failed + " didn't fit and were left where they were." : "";
+  if (failed) {
+    placed = before.map(b => { b.pl.x = b.x; b.pl.y = b.y; return b.pl; });
+    $("bmsg").textContent = "Couldn't fit everything at once, so the layout was left as it was.";
+  } else $("bmsg").textContent = "";
+  selected = -1;
   drawBoard(); renderBoardStats();
 }
 
@@ -2797,7 +2848,7 @@ function transformSelected(fn){
   const before = { rot: pl.rot, flip: pl.flip, x: pl.x, y: pl.y };
   fn(pl); rebuild(pl);
   if (!fits(pl, pl.x, pl.y, selected)) {
-    const spot = findSpot(pl);
+    const spot = findSpot(pl, selected);
     if (spot) { pl.x = spot.x; pl.y = spot.y; $("bmsg").textContent = "Moved to make room."; }
     else {
       Object.assign(pl, before); rebuild(pl);
@@ -2816,7 +2867,18 @@ $("bt-del").addEventListener("click", () => {
   drawBoard(); renderBoardStats();
 });
 $("bt-pack").addEventListener("click", packBoard);
-$("bt-clear").addEventListener("click", () => { placed = []; selected = -1; drawBoard(); renderBoardStats(); });
+$("bt-clear").addEventListener("click", () => {
+  const b = $("bt-clear");
+  if (!placed.length) return;
+  if (b.dataset.armed) {
+    clearTimeout(+b.dataset.armed); delete b.dataset.armed; b.textContent = "Clear board";
+    placed = []; selected = -1; drawBoard(); renderBoardStats();
+    $("bmsg").textContent = "Board cleared. Your designs are still in the library.";
+  } else {
+    b.textContent = "Tap again to clear";
+    b.dataset.armed = String(setTimeout(() => { delete b.dataset.armed; b.textContent = "Clear board"; }, 3000));
+  }
+});
 $("bt-pdf").addEventListener("click", async () => {
   if (!placed.length) { $("bmsg").textContent = "Nothing on the board yet."; return; }
   $("bmsg").textContent = "Building the PDF…";
@@ -2836,6 +2898,65 @@ $("bt-pdf").addEventListener("click", async () => {
     } else $("bmsg").textContent = "Saving files isn't available here.";
   } catch(err) { $("bmsg").textContent = "Couldn't build the PDF."; }
 });
+
+/* ---------- which pegboard ---------- */
+const BOARD_PRESETS = [[52, 50], [78, 70]];       // pegs, printed grid
+const BOARD_KEY = "beadboard:board";
+
+function renderBoardSizes(){
+  const box = $("boardsizes"); box.innerHTML = "";
+  const bs = boardSize(), g = gridArea().area;
+  let matched = false;
+  for (const [p, gr] of BOARD_PRESETS) {
+    const b = document.createElement("button"); b.type = "button";
+    b.textContent = p + " \u00D7 " + p;
+    b.title = "Printed grid " + gr + " \u00D7 " + gr;
+    const on = bs === p && g === gr; if (on) matched = true;
+    b.dataset.on = on ? "1" : "0";
+    b.addEventListener("click", () => { $("boardpegs").value = p; $("boardgrid").value = gr; boardChanged(); });
+    box.append(b);
+  }
+  if (!matched) box.append(Object.assign(document.createElement("span"), { className: "pbnote", textContent: "Custom " + bs + " \u00D7 " + bs }));
+}
+
+/* After a board change, keep each design where it is if it still fits;
+   otherwise find it a new spot; only if there is truly no room does it
+   come off — and the message says so. */
+function refitPlacements(){
+  const all = placed; placed = [];
+  let moved = 0, dropped = 0;
+  for (const pl of all) {
+    placed.push(pl);
+    if (fits(pl, pl.x, pl.y, placed.length - 1)) continue;
+    placed.pop();
+    const spot = findSpot(pl);
+    if (spot) { pl.x = spot.x; pl.y = spot.y; placed.push(pl); moved++; }
+    else dropped++;
+  }
+  selected = -1;
+  const parts = [];
+  if (moved) parts.push(moved + (moved > 1 ? " designs were" : " design was") + " moved to fit");
+  if (dropped) parts.push(dropped + (dropped > 1 ? " didn't" : " didn't") + " fit and came off the board");
+  $("bmsg").textContent = parts.length ? parts.join("; ") + "." : "";
+}
+
+function boardChanged(){
+  try { localStorage.setItem(BOARD_KEY, JSON.stringify([+$("boardpegs").value, +$("boardgrid").value])); } catch(e) {}
+  refitPlacements();
+  renderBoardSizes();
+  render();
+  if (view === "board") { drawBoard(); renderBoardStats(); }
+}
+$("boardpegs").addEventListener("change", boardChanged);
+$("boardgrid").addEventListener("change", boardChanged);
+
+(function(){
+  try {
+    const v = JSON.parse(localStorage.getItem(BOARD_KEY) || "null");
+    if (Array.isArray(v) && v[0] >= 8) { $("boardpegs").value = v[0]; if (v[1] >= 5) $("boardgrid").value = v[1]; }
+  } catch(e) {}
+  renderBoardSizes();
+})();
 
 /* ---------- library controls ---------- */
 $("libsave").addEventListener("click", saveCurrentToLibrary);
