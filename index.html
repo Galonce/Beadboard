@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Beadboard — photo to MARD bead pattern</title>
 <meta name="description" content="Turn photos and pixel art into 2.6 mm MARD fuse bead patterns.">
-<meta name="theme-color" content="#16202B">
+<meta name="theme-color" content="#0D1014">
 <!-- Installable: iOS uses the apple-* tags, everything else uses the manifest. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -419,37 +419,39 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 </script>
 <style>
 :root{
-  --ground:#EDF0F2;
-  --surface:#FFFFFF;
-  --peg:#D5DBE1;
-  --peg-hole:#C0C8D0;
-  --ink:#13293D;
-  --ink-soft:#5B6B7B;
-  --rule:#C8D0D7;
-  --accent:#D63C74;
+  /* dark is the default */
+  --ground:#0D1014;          /* app background */
+  --surface:#181C22;         /* grouped panels */
+  --surface-2:#242A32;       /* fields, secondary buttons */
+  --surface-3:#2F3641;       /* pressed, meters */
+  --peg:#111419;             /* the viewport */
+  --peg-hole:#283039;
+  --ink:#F2F4F7;
+  --ink-soft:#97A1AD;
+  --rule:#262C34;
+  --accent:#F0508A;
   --accent-ink:#FFFFFF;
-  --radius:3px;
+  --accent-tint:rgba(240,80,138,.20);
+  --grid-strong:rgba(255,255,255,.55);
+  --grid-mid:rgba(255,255,255,.28);
+  --grid-faint:rgba(255,255,255,.10);
+  /* corner radii; each gets Figma-style 60% smoothing */
+  --r-s:8px; --r-m:11px; --r-l:16px;
+  --radius:8px;
   --display:"Bricolage Grotesque", Georgia, serif;
   --ui:"Instrument Sans", system-ui, -apple-system, sans-serif;
   --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme:dark;         /* native sliders, checkboxes and scrollbars go dark too */
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top, 0px);
   padding-bottom:env(safe-area-inset-bottom, 0px);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ground:#151A1F;
-    --surface:#1E252C;
-    --peg:#2B333C;
-    --peg-hole:#374049;
-    --ink:#E4E9ED;
-    --ink-soft:#93A1AE;
-    --rule:#333C46;
-  }
-}
-:root[data-theme="dark"]{
-  --ground:#151A1F; --surface:#1E252C; --peg:#2B333C; --peg-hole:#374049;
-  --ink:#E4E9ED; --ink-soft:#93A1AE; --rule:#333C46;
+:root[data-theme="light"]{
+  --ground:#EDF0F2; --surface:#FFFFFF; --surface-2:#EEF1F4; --surface-3:#E2E7EC;
+  --peg:#D5DBE1; --peg-hole:#C0C8D0; --ink:#13293D; --ink-soft:#5B6B7B; --rule:#C8D0D7;
+  --accent:#D63C74; --accent-tint:rgba(214,60,116,.12);
+  --grid-strong:rgba(19,41,61,.85); --grid-mid:rgba(19,41,61,.45); --grid-faint:rgba(19,41,61,.16);
+  color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
@@ -476,17 +478,19 @@ body{
 .empty p{margin:0 0 4px;font-size:14px}
 .empty .hint{color:var(--ink-soft);font-size:13px}
 /* ---------- controls ---------- */
-.panel{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:16px}
+.panel{background:var(--surface);border:0;border-radius:var(--r-l);padding:16px}
 h2{font-family:var(--display);font-weight:500;font-size:15px;margin:0 0 12px;letter-spacing:-.01em}
 
 .pick{
   display:block;width:100%;text-align:center;cursor:pointer;
   background:var(--accent);color:var(--accent-ink);
-  border:0;border-radius:var(--radius);
+  border:0;border-radius:var(--r-m);
   font:600 15px var(--ui);padding:13px 16px;
+  transition:transform .12s ease, filter .12s ease;
 }
-.pick:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.pick.secondary{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:500;margin-top:8px}
+.pick:active{transform:scale(.975);filter:brightness(.92)}
+.pick:focus-visible{outline:2px solid var(--ink);outline-offset:-4px}
+.pick.secondary{background:var(--surface-2);color:var(--ink);border:0;font-weight:500;margin-top:8px}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 
 .ctl{margin:15px 0 0}
@@ -518,26 +522,29 @@ input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:3
 .note-top{color:var(--ink-soft);font-size:12.5px;margin:-4px 0 12px;line-height:1.4}
 .fr{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500}
 .fr input{
-  width:66px;font:500 14px var(--mono);padding:7px 8px;
-  border:1px solid var(--rule);border-radius:var(--radius);
-  background:var(--ground);color:var(--ink);
+  width:66px;font:500 14px var(--mono);padding:8px 9px;
+  border:0;border-radius:var(--r-s);
+  background:var(--surface-2);color:var(--ink);
 }
 .fr input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .fr span{color:var(--ink-soft)}
 .quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
 .quick button{
   font:500 13px var(--ui);font-variant-numeric:tabular-nums;padding:6px 10px;cursor:pointer;
-  border:1px solid var(--rule);border-radius:var(--radius);
-  background:var(--ground);color:var(--ink-soft);
+  border:0;border-radius:var(--r-s);
+  background:var(--surface-2);color:var(--ink-soft);
+  transition:transform .12s ease;
 }
-.quick button[data-on="1"]{border-color:var(--accent);color:var(--ink)}
+.quick button:active{transform:scale(.96)}
+.quick button[data-on="1"]{background:var(--accent-tint);color:var(--ink)}
+.quick button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 .list li{cursor:pointer}
 .list li:hover .code{color:var(--accent)}
 .list li[data-swapped="1"] .code::after{content:" \2192";color:var(--accent);font-weight:700}
 .swatches{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 0}
 .swatches button{
   width:38px;height:30px;padding:0;cursor:pointer;position:relative;
-  border:1px solid var(--rule);border-radius:2px;
+  border:1px solid rgba(255,255,255,.12);border-radius:4px;
   font:600 8.5px var(--mono);color:#000;line-height:1;
   display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;
 }
@@ -554,9 +561,9 @@ details.panel > summary::after{
 }
 details.panel[open] > summary::after{content:"\2212"}
 input[type=search]{
-  width:100%;margin-top:12px;padding:9px 10px;font:500 14px var(--ui);
-  border:1px solid var(--rule);border-radius:var(--radius);
-  background:var(--ground);color:var(--ink);
+  width:100%;margin-top:12px;padding:10px 12px;font:500 14px var(--ui);
+  border:0;border-radius:var(--r-s);
+  background:var(--surface-2);color:var(--ink);
 }
 input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .refhead{display:flex;align-items:center;gap:11px;margin-top:12px}
@@ -578,16 +585,16 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .boardpick .quick{margin-top:0}
 .lib li.libconfirm{flex-wrap:wrap;gap:8px 10px}
 .lib li.libconfirm .lname{white-space:normal;flex:1 1 140px;font-weight:500}
-.lib .lyes,.lib .lno{font:600 12.5px var(--ui);border-radius:var(--radius);padding:7px 12px;cursor:pointer;flex:none}
+.lib .lyes,.lib .lno{font:600 12.5px var(--ui);border-radius:var(--r-s);padding:8px 13px;cursor:pointer;flex:none}
 .lib .lyes{background:var(--accent);color:var(--accent-ink);border:0}
-.lib .lno{background:none;border:1px solid var(--rule);color:var(--ink)}
+.lib .lno{background:var(--surface-2);border:0;color:var(--ink)}
 .librow .pick{margin-top:0}
 #libfile{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .parentbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:12px 0 0;padding:9px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .linkbtn{background:none;border:0;padding:0;cursor:pointer;font:500 13px var(--ui);color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .pbnote{font-size:12.5px;color:var(--ink-soft)}
 .pbprog{display:flex;align-items:center;gap:8px;flex:1 1 100%}
-.meter{flex:0 0 96px;height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.meter{flex:0 0 96px;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden}
 .meter .fill{display:block;height:100%;background:#2E9E5B}
 .pbfilter{display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer}
 .pbfilter input{accent-color:var(--accent);width:15px;height:15px}
@@ -665,8 +672,8 @@ h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02
 .viewtabs::-webkit-scrollbar{display:none}
 
 .stagewrap{grid-area:stage;display:flex;align-items:center;justify-content:center;padding:8px;min-height:0;min-width:0}
-.stage{position:relative;overflow:hidden;background:var(--peg);border:1px solid var(--rule);
-  border-radius:var(--radius);touch-action:none;width:300px;height:300px;flex:none}
+.stage{position:relative;overflow:hidden;background:var(--peg);border:0;
+  border-radius:var(--r-l);touch-action:none;width:300px;height:300px;flex:none}
 .stagewrap.drag .stage{outline:2px dashed var(--accent);outline-offset:-6px}
 .vpc{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 .vpc canvas{display:block}
@@ -681,10 +688,11 @@ h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02
 .colview .swatches.full{max-height:none;overflow:visible}
 
 .vpbar{position:absolute;right:8px;bottom:8px;display:flex;align-items:center;gap:8px;
-  background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:4px 4px 4px 11px;
-  font:500 12px var(--mono);color:var(--ink-soft);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  background:rgba(24,28,34,.62);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.09);border-radius:999px;padding:4px 4px 4px 12px;
+  font:500 12px var(--mono);color:var(--ink-soft);box-shadow:0 6px 20px rgba(0,0,0,.35)}
 .vpbar button{font:600 12px var(--ui);border:0;border-radius:999px;padding:6px 12px;cursor:pointer;
-  background:var(--ink);color:var(--surface)}
+  background:var(--ink);color:var(--ground)}
 
 .ctrl{grid-area:ctrl;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding:12px 12px 28px;min-height:0;background:var(--ground)}
@@ -1475,18 +1483,21 @@ function drawChart(){
     }
   }
   // grid — matches a printed pegboard: dashed every 5, solid every 10
+  const gStrong = cs.getPropertyValue("--grid-strong").trim() || "rgba(19,41,61,.85)";
+  const gMid    = cs.getPropertyValue("--grid-mid").trim()    || "rgba(19,41,61,.45)";
+  const gFaint  = cs.getPropertyValue("--grid-faint").trim()  || "rgba(19,41,61,.16)";
   for (let x = 0; x <= gw; x++) {
     const heavy = x % 10 === 0, mid = x % 5 === 0;
-    if (!heavy && !mid) { ctx.setLineDash([]); ctx.strokeStyle = "rgba(19,41,61,.16)"; ctx.lineWidth = 0.6; }
-    else if (!heavy)    { ctx.setLineDash([3,3]); ctx.strokeStyle = "rgba(19,41,61,.45)"; ctx.lineWidth = 0.9; }
-    else                { ctx.setLineDash([]); ctx.strokeStyle = "rgba(19,41,61,.85)"; ctx.lineWidth = 1.6; }
+    if (!heavy && !mid) { ctx.setLineDash([]); ctx.strokeStyle = gFaint; ctx.lineWidth = 0.6; }
+    else if (!heavy)    { ctx.setLineDash([3,3]); ctx.strokeStyle = gMid; ctx.lineWidth = 0.9; }
+    else                { ctx.setLineDash([]); ctx.strokeStyle = gStrong; ctx.lineWidth = 1.6; }
     ctx.beginPath(); ctx.moveTo(pad+x*cell, pad); ctx.lineTo(pad+x*cell, pad+gh*cell); ctx.stroke();
   }
   for (let y = 0; y <= gh; y++) {
     const heavy = y % 10 === 0, mid = y % 5 === 0;
-    if (!heavy && !mid) { ctx.setLineDash([]); ctx.strokeStyle = "rgba(19,41,61,.16)"; ctx.lineWidth = 0.6; }
-    else if (!heavy)    { ctx.setLineDash([3,3]); ctx.strokeStyle = "rgba(19,41,61,.45)"; ctx.lineWidth = 0.9; }
-    else                { ctx.setLineDash([]); ctx.strokeStyle = "rgba(19,41,61,.85)"; ctx.lineWidth = 1.6; }
+    if (!heavy && !mid) { ctx.setLineDash([]); ctx.strokeStyle = gFaint; ctx.lineWidth = 0.6; }
+    else if (!heavy)    { ctx.setLineDash([3,3]); ctx.strokeStyle = gMid; ctx.lineWidth = 0.9; }
+    else                { ctx.setLineDash([]); ctx.strokeStyle = gStrong; ctx.lineWidth = 1.6; }
     ctx.beginPath(); ctx.moveTo(pad, pad+y*cell); ctx.lineTo(pad+gw*cell, pad+y*cell); ctx.stroke();
   }
   ctx.setLineDash([]);
@@ -3315,6 +3326,61 @@ function cancelBoardDrag(){
       try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {}
     });
   }
+})();
+
+/* ============================ smoothed corners ============================
+   iOS-style continuous corners: the same curve as Figma's corner smoothing
+   at 60%, its iOS preset, so a Figma file and the app match.
+   CSS has corner-shape: squircle for this, but Safari doesn't support it yet,
+   so each radius is drawn once as an SVG and applied as a nine-slice mask:
+   the corners keep their exact shape and only the straight edges stretch,
+   so it fits any element size with no per-element work. */
+function squirclePath(w, h, r, smoothing){
+  const rad = d => d * Math.PI / 180;
+  r = Math.min(r, w / 2, h / 2);
+  const p = Math.min((1 + smoothing) * r, w / 2, h / 2);
+  const arcMeasure = 90 * (1 - smoothing);
+  const arc = Math.sin(rad(arcMeasure / 2)) * r * Math.SQRT2;
+  const alpha = (90 - arcMeasure) / 2;
+  const p3p4 = r * Math.tan(rad(alpha / 2));
+  const beta = 45 * smoothing;
+  const c = p3p4 * Math.cos(rad(beta));
+  const d = c * Math.tan(rad(beta));
+  const b = (p - arc - c - d) / 3, a = 2 * b;
+  const f = n => +n.toFixed(3);
+  return `M ${f(w-p)} 0 c ${f(a)} 0 ${f(a+b)} 0 ${f(a+b+c)} ${f(d)} a ${f(r)} ${f(r)} 0 0 1 ${f(arc)} ${f(arc)} ` +
+         `c ${f(d)} ${f(c)} ${f(d)} ${f(b+c)} ${f(d)} ${f(a+b+c)} L ${f(w)} ${f(h-p)} ` +
+         `c 0 ${f(a)} 0 ${f(a+b)} ${f(-d)} ${f(a+b+c)} a ${f(r)} ${f(r)} 0 0 1 ${f(-arc)} ${f(arc)} ` +
+         `c ${f(-c)} ${f(d)} ${f(-(b+c))} ${f(d)} ${f(-(a+b+c))} ${f(d)} L ${f(p)} ${f(h)} ` +
+         `c ${f(-a)} 0 ${f(-(a+b))} 0 ${f(-(a+b+c))} ${f(-d)} a ${f(r)} ${f(r)} 0 0 1 ${f(-arc)} ${f(-arc)} ` +
+         `c ${f(-d)} ${f(-c)} ${f(-d)} ${f(-(b+c))} ${f(-d)} ${f(-(a+b+c))} L 0 ${f(p)} ` +
+         `c 0 ${f(-a)} 0 ${f(-(a+b))} ${f(d)} ${f(-(a+b+c))} a ${f(r)} ${f(r)} 0 0 1 ${f(arc)} ${f(-arc)} ` +
+         `c ${f(c)} ${f(-d)} ${f(b+c)} ${f(-d)} ${f(a+b+c)} ${f(-d)} Z`;
+}
+
+(function(){
+  const SMOOTH = 0.6;
+  const cs = getComputedStyle(document.documentElement);
+  const px = v => parseFloat(cs.getPropertyValue(v)) || 8;
+  // which elements get which radius
+  const groups = [
+    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno"],
+    [px("--r-m"), ".pick"],
+    [px("--r-l"), ".panel, .stage"]
+  ];
+  let css = "";
+  for (const [r, sel] of groups) {
+    const P = Math.ceil((1 + SMOOTH) * r);           // the corner's full reach along each edge
+    const N = 2 * P + 2;                             // corners plus a 2px stretchable middle
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${N}" height="${N}" viewBox="0 0 ${N} ${N}">` +
+                `<path d="${squirclePath(N, N, r, SMOOTH)}"/></svg>`;
+    const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    css += `${sel}{border-radius:0;-webkit-mask-box-image:${url} ${P} / ${P}px stretch;}\n`;
+  }
+  const st = document.createElement("style");
+  st.id = "squircles";
+  st.textContent = `@supports (-webkit-mask-box-image: none){\n${css}}`;
+  document.head.append(st);
 })();
 
 /* empty-state pegboard */
