@@ -425,7 +425,16 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   --surface-2:#242A32;       /* fields, secondary buttons */
   --surface-3:#2F3641;       /* pressed, meters */
   --peg:#111419;             /* the viewport */
-  --peg-hole:#283039;
+  --peg-hole:rgba(0,0,0,.28);
+  /* Neutral middle gray for the viewport and the Colors tab: no tint to
+     skew how colors read, and light enough that black outlines still
+     separate from the background. */
+  --canvas:#5C5C5C;
+  --canvas-ink:rgba(255,255,255,.94);
+  --canvas-ink-soft:rgba(255,255,255,.76);
+  --canvas-grid-strong:rgba(0,0,0,.72);
+  --canvas-grid-mid:rgba(0,0,0,.44);
+  --canvas-grid-faint:rgba(0,0,0,.17);
   --ink:#F2F4F7;
   --ink-soft:#97A1AD;
   --rule:#262C34;
@@ -475,8 +484,8 @@ body{
 
 /* empty state */
 .empty svg{display:block;margin:0 auto 14px}
-.empty p{margin:0 0 4px;font-size:14px}
-.empty .hint{color:var(--ink-soft);font-size:13px}
+.empty p{margin:0 0 4px;font-size:14px;color:var(--canvas-ink)}
+.empty .hint{color:var(--canvas-ink-soft);font-size:13px}
 /* ---------- controls ---------- */
 .panel{background:var(--surface);border:0;border-radius:var(--r-l);padding:16px}
 h2{font-family:var(--display);font-weight:500;font-size:15px;margin:0 0 12px;letter-spacing:-.01em}
@@ -572,6 +581,7 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .refhead .meta b{font-family:var(--mono);font-size:13.5px}
 .refhead .meta span{color:var(--ink-soft);font-family:var(--mono);font-size:12px}
 .refser{font:600 11px var(--mono);color:var(--ink-soft);margin:9px 0 1px;width:100%}
+.colview .refser,.colview .note-top{color:var(--canvas-ink-soft)}
 .lib{list-style:none;margin:12px 0 0;padding:0;max-height:230px;overflow:auto}
 .lib li{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule);cursor:pointer}
 .lib li:last-child{border-bottom:0}
@@ -672,7 +682,7 @@ h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02
 .viewtabs::-webkit-scrollbar{display:none}
 
 .stagewrap{grid-area:stage;display:flex;align-items:center;justify-content:center;padding:8px;min-height:0;min-width:0}
-.stage{position:relative;overflow:hidden;background:var(--peg);border:0;
+.stage{position:relative;overflow:hidden;background:var(--canvas);border:0;
   border-radius:var(--r-l);touch-action:none;width:300px;height:300px;flex:none}
 .stagewrap.drag .stage{outline:2px dashed var(--accent);outline-offset:-6px}
 .vpc{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
@@ -682,7 +692,7 @@ h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02
 .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:22px;text-align:center}
 
-.colview{position:absolute;inset:0;overflow:auto;background:var(--surface);padding:12px 12px 18px;
+.colview{position:absolute;inset:0;overflow:auto;background:var(--canvas);padding:12px 12px 18px;
   touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .colview #refgrid button{width:46px;height:38px;font-size:9.5px}
 .colview .swatches.full{max-height:none;overflow:visible}
@@ -699,7 +709,7 @@ h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02
 .ctrl > .panel{margin-top:10px}
 .ctrl > .panel:first-child{margin-top:0}
 
-/* installed-app polish: no grey tap flash, no long-press "save image"
+/* installed-app polish: no gray tap flash, no long-press "save image"
    sheet on the canvas, no double-tap page zoom, and no iOS zoom-on-focus
    (iOS zooms any field under 16px, which would strand a fixed layout) */
 *{-webkit-tap-highlight-color:transparent}
@@ -716,12 +726,17 @@ details.sec[open] > summary::after{content:"\2212"}
 details.sec[open] > summary{margin-bottom:-4px}
 details.sec > summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--radius)}
 .secmeta{font:500 12px var(--mono);color:var(--ink-soft)}
+/* section icons: one color, one stroke weight, drawn on a 24-unit grid */
+.secicon{width:19px;height:19px;flex:none;color:var(--accent);
+  fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+details.sec > summary{gap:10px}
 
 footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:12px}
 footer p{margin:0 0 7px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-board" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-color" viewBox="0 0 24 24"><path d="M12 2.8c3.8 4.6 6.4 8.1 6.4 11.4a6.4 6.4 0 0 1-12.8 0c0-3.3 2.6-6.8 6.4-11.4z"/><path d="M8.9 14.6a3.2 3.2 0 0 0 2.6 3"/></symbol><symbol id="i-sheet" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><rect x="6" y="6" width="3.6" height="3.6" rx=".8" fill="currentColor" stroke="none"/></symbol><symbol id="i-pattern" viewBox="0 0 24 24"><path d="M4 7.5h9.5M18.5 7.5H20M4 16.5h3.5M12.5 16.5H20"/><circle cx="16" cy="7.5" r="2.5"/><circle cx="10" cy="16.5" r="2.5"/></symbol><symbol id="i-background" viewBox="0 0 24 24"><g transform="rotate(-45 12 11)"><rect x="4.5" y="7.5" width="15" height="7" rx="2"/><path d="M10 7.5v7"/></g><path d="M5 20.5h14"/></symbol><symbol id="i-beads" viewBox="0 0 24 24"><circle cx="5.8" cy="5.5" r="1.7"/><circle cx="5.8" cy="12" r="1.7"/><circle cx="5.8" cy="18.5" r="1.7"/><path d="M10.5 5.5h9.5M10.5 12h9.5M10.5 18.5h6"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M4.5 8.5h13M14 5l3.5 3.5L14 12M19.5 15.5h-13M10 12l-3.5 3.5L10 19"/></symbol><symbol id="i-library" viewBox="0 0 24 24"><rect x="7.5" y="3.5" width="13" height="13" rx="2.5"/><path d="M16.5 20.5h-9a4 4 0 0 1-4-4v-9"/><circle cx="12" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.1" fill="currentColor" stroke="none"/></symbol><symbol id="i-export" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M12 10.8v6.2M9.4 14.5L12 17l2.6-2.5"/></symbol></defs></svg>
 <div class="app" id="app">
 
   <header class="mast">
@@ -734,7 +749,7 @@ footer p{margin:0 0 7px}
       <button role="tab" id="tab-chart" aria-selected="false">Codes</button>
       <button role="tab" id="tab-sheet" aria-selected="false">Sheet</button>
       <button role="tab" id="tab-board" aria-selected="false">Board</button>
-      <button role="tab" id="tab-colours" aria-selected="false">Colours</button>
+      <button role="tab" id="tab-colors" aria-selected="false">Colors</button>
     </nav>
 
   <div class="stagewrap" id="board">
@@ -775,7 +790,7 @@ footer p{margin:0 0 7px}
     </div>
 
     <details class="panel sec" data-sec="board" id="boardpanel" hidden open>
-      <summary><h2>Board layout</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-board"/></svg><h2>Board layout</h2></summary>
       <div class="boardpick">
         <span class="pbnote">Board</span>
         <div class="quick" id="boardsizes"></div>
@@ -794,21 +809,21 @@ footer p{margin:0 0 7px}
       <dl class="stats">
         <div><dt>On board</dt><dd id="b-items">0</dd></div>
         <div><dt>Beads</dt><dd id="b-beads">0</dd></div>
-        <div><dt>Colours</dt><dd id="b-cols">0</dd></div>
+        <div><dt>Colors</dt><dd id="b-cols">0</dd></div>
       </dl>
       <ul class="list" id="blist" style="max-height:190px"></ul>
       <button class="pick" id="bt-pdf">Save board PDF</button>
       <p class="msg" id="bmsg"></p>
     </details>
 
-    <details class="panel sec" id="colpanel" data-sec="colour" open hidden>
-      <summary><h2>Colour</h2></summary>
-      <div id="refdetail"><p class="note-top" style="margin:12px 0 0">Tap any colour to see it large, with its closest neighbours.</p></div>
+    <details class="panel sec" id="colpanel" data-sec="color" open hidden>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-color"/></svg><h2>Color</h2></summary>
+      <div id="refdetail"><p class="note-top" style="margin:12px 0 0">Tap any color to see it large, with its closest neighbors.</p></div>
       <div id="calib"></div>
     </details>
 
     <details class="panel sec" data-sec="sheet" id="sheetpanel" hidden open>
-      <summary><h2>Sprite sheet</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-sheet"/></svg><h2>Sprite sheet</h2></summary>
       <div class="row" style="margin-top:0">
         <input type="checkbox" id="assheet">
         <label for="assheet">Treat this as a sprite sheet</label>
@@ -842,7 +857,7 @@ footer p{margin:0 0 7px}
     </details>
 
     <details class="panel sec" data-sec="pattern" open>
-      <summary><h2>Pattern</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-pattern"/></svg><h2>Pattern</h2></summary>
 
       <div class="ctl">
         <label for="w">Width in beads <span class="val" id="wv">58</span></label>
@@ -853,7 +868,7 @@ footer p{margin:0 0 7px}
       <div class="ctl">
         <label for="h">Height in beads <span class="val" id="hv">44</span></label>
         <input type="range" id="h" min="4" max="256" value="44" step="1" disabled>
-        <span class="note">Unlock proportions to set this. The photo is cropped from the centre to fit, never stretched.</span>
+        <span class="note">Unlock proportions to set this. The photo is cropped from the center to fit, never stretched.</span>
       </div>
 
       <div class="row">
@@ -864,7 +879,7 @@ footer p{margin:0 0 7px}
       <div class="ctl">
         <label for="cull">Simplify <span class="val" id="cullv">6</span></label>
         <input type="range" id="cull" min="0" max="24" value="6" step="1">
-        <span class="note">Colours needed fewer than this many times get merged into their closest neighbour. Fewer bags to open.</span>
+        <span class="note">Colors needed fewer than this many times get merged into their closest neighbor. Fewer bags to open.</span>
       </div>
 
       <div class="row">
@@ -873,7 +888,7 @@ footer p{margin:0 0 7px}
       </div>
       <div class="row">
         <input type="checkbox" id="distinct" checked>
-        <label for="distinct">Give every source colour its own bead</label>
+        <label for="distinct">Give every source color its own bead</label>
       </div>
       <div class="row">
         <input type="checkbox" id="speck">
@@ -900,7 +915,7 @@ footer p{margin:0 0 7px}
 
       <dl class="stats">
         <div><dt>Beads</dt><dd id="s-total">—</dd></div>
-        <div><dt>Colours</dt><dd id="s-cols">—</dd></div>
+        <div><dt>Colors</dt><dd id="s-cols">—</dd></div>
         <div><dt>In source</dt><dd id="s-src">—</dd></div>
         <div><dt>Boards</dt><dd id="s-boards">—</dd></div>
         <div><dt>Removed</dt><dd id="s-removed">—</dd></div>
@@ -909,7 +924,7 @@ footer p{margin:0 0 7px}
     </details>
 
     <details class="panel sec" data-sec="background" id="bgpanel" hidden>
-      <summary><h2>Background</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-background"/></svg><h2>Background</h2></summary>
       <div class="row" style="margin-top:0">
         <input type="checkbox" id="bgedge">
         <label for="bgedge">Remove background touching the edges</label>
@@ -922,14 +937,14 @@ footer p{margin:0 0 7px}
     </details>
 
     <details class="panel sec" data-sec="beads">
-      <summary><h2>Beads to pull</h2><span class="secmeta" id="beadcount"></span></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-beads"/></svg><h2>Beads to pull</h2><span class="secmeta" id="beadcount"></span></summary>
       <ul class="list" id="list"><li><span class="n">Nothing loaded yet.</span></li></ul>
     </details>
 
     <details class="panel sec" data-sec="swap" id="swappanel" hidden open>
-      <summary><h2 id="swaptitle">Swap a colour</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-swap"/></svg><h2 id="swaptitle">Swap a color</h2></summary>
       <div id="swapidle">
-        <p class="note-top">Tap any colour in the list above, or tap a bead in the Preview, to replace it.</p>
+        <p class="note-top">Tap any color in the list above, or tap a bead in the Preview, to replace it.</p>
         <ul class="swaps" id="swapsul"></ul>
         <button class="pick secondary" id="swapreset" hidden>Undo all swaps</button>
       </div>
@@ -939,7 +954,7 @@ footer p{margin:0 0 7px}
         <div class="swatches" id="swapnear"></div>
         <div class="row">
           <input type="checkbox" id="swapall">
-          <label for="swapall">Show all 221 colours</label>
+          <label for="swapall">Show all 221 colors</label>
         </div>
         <div class="swatches full" id="swapfull" hidden></div>
         <button class="pick secondary" id="swapcancel">Cancel</button>
@@ -947,7 +962,7 @@ footer p{margin:0 0 7px}
     </details>
 
     <details class="panel sec" data-sec="library" id="libpanel">
-      <summary><h2>Library</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-library"/></svg><h2>Library</h2></summary>
       <div class="fr" style="margin-bottom:8px">
         <label for="libname" style="flex:none">Name</label>
         <input type="text" id="libname" maxlength="40" placeholder="Design 1" autocomplete="off" style="width:100%;font-family:var(--ui)">
@@ -963,15 +978,15 @@ footer p{margin:0 0 7px}
     </details>
 
     <details class="panel sec" data-sec="export" open>
-      <summary><h2>Take it to the table</h2></summary>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-export"/></svg><h2>Take it to the table</h2></summary>
       <button class="pick" id="pdf">Save pattern PDF</button>
       <button class="pick secondary" id="csv">Save bead list (CSV)</button>
       <p class="msg" id="msg"></p>
     </details>
 
     <footer>
-  <p>Colours are matched in OKLab, so shading and skin tones hold together better than the usual RGB match. The 221 MARD standard range is built in.</p>
-  <p>Screen colour is an approximation of the real bead and dye lots vary — use the codes, not the colours on glass.</p>
+  <p>Colors are matched in OKLab, so shading and skin tones hold together better than the usual RGB match. The 221 MARD standard range is built in.</p>
+  <p>Screen color is an approximation of the real bead and dye lots vary — use the codes, not the colors on glass.</p>
 </footer>
   </aside>
 </div>
@@ -987,7 +1002,7 @@ for (const item of PAL_RAW.split(",")) {
   CODES.push(code); RGB.push([r,g,b]);
 }
 
-/* ============================ colour ============================ */
+/* ============================ color ============================ */
 function lin(c){ c/=255; return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
 function oklab(r,g,b){
   const R=lin(r), G=lin(g), B=lin(b);
@@ -1002,7 +1017,7 @@ function oklab(r,g,b){
 }
 for (const [r,g,b] of RGB) LAB.push(oklab(r,g,b));
 
-/* Factory colours stay untouched; adjustments live in device storage and
+/* Factory colors stay untouched; adjustments live in device storage and
    are laid over them at startup. Nothing in the program itself changes,
    and "back to factory" is always one tap away. */
 const ORIG_RGB = RGB.map(c => c.slice());
@@ -1037,10 +1052,10 @@ let srcAlpha = null;                 // full-res alpha map, for trimming
 let grid = null;          // Int32Array of palette indices
 let gw = 0, gh = 0;
 let counts = [];          // [idx, n] sorted desc
-let srcColours = 0;       // distinct colours in the source
+let srcColours = 0;       // distinct colors in the source
 let swaps = new Map();    // palette index -> replacement, chosen by hand
-let swapFrom = null;      // colour currently being replaced
-let bgColours = new Set();// colours dropped entirely — survives re-quantizing
+let swapFrom = null;      // color currently being replaced
+let bgColours = new Set();// colors dropped entirely — survives re-quantizing
 let erased = new Set();    // hand-erased cells "x,y" — tied to the current grid size
 let erasedDims = "";      // the grid size those cells belong to
 let removedCount = 0;
@@ -1053,7 +1068,7 @@ const $ = id => document.getElementById(id);
 
 const unpack = k => [(k>>16)&255, (k>>8)&255, k&255];
 
-/* Ordinary matching: each colour independently takes its closest bead.
+/* Ordinary matching: each color independently takes its closest bead.
    Two near shades can land on the same bead, which is correct for photos. */
 function assignNearest(keys){
   const map = new Map();
@@ -1070,7 +1085,7 @@ function assignNearest(keys){
   return map;
 }
 
-/* One bead per source colour. Pixel art uses deliberately chosen, often
+/* One bead per source color. Pixel art uses deliberately chosen, often
    very close shades; collapsing two of them onto one bead destroys the
    artwork. Greedy over every pair by ascending distance: the closest
    match in the whole set is settled first, and each bead is spent once. */
@@ -1108,7 +1123,7 @@ function buildGrid(){
   ctx.imageSmoothingEnabled = $("smooth").checked;
   ctx.imageSmoothingQuality = "high";
 
-  // centre-crop to the target shape rather than distorting
+  // center-crop to the target shape rather than distorting
   const B = crop || { x:0, y:0, w:srcImage.width, h:srcImage.height };
   let sx = B.x, sy = B.y, sw = B.w, sh = B.h;
   if (!linked) {
@@ -1119,7 +1134,7 @@ function buildGrid(){
   ctx.drawImage(srcImage, sx, sy, sw, sh, 0, 0, W, H);
   const data = ctx.getImageData(0,0,W,H).data;
 
-  // Stage 1: what distinct colours does the source actually contain?
+  // Stage 1: what distinct colors does the source actually contain?
   const tally = new Map();
   for (let p = 0, n = W*H; p < n; p++) {
     if (data[p*4+3] < 128) continue;
@@ -1128,7 +1143,7 @@ function buildGrid(){
   }
   srcColours = tally.size;
 
-  // Stage 2: decide which bead each source colour becomes.
+  // Stage 2: decide which bead each source color becomes.
   const DISTINCT_MAX = 64;
   const map = ($("distinct").checked && tally.size <= DISTINCT_MAX)
     ? assignDistinct([...tally.keys()])
@@ -1190,10 +1205,10 @@ function recount(){
 }
 function beadTotal(){ let n = 0; for (const [,c] of counts) n += c; return n; }
 
-/* ---------- hand-chosen colour swaps ---------- */
+/* ---------- hand-chosen color swaps ---------- */
 
 /* Follow a chain (A->B, B->C) to its end so a swap applied to an
-   already-swapped colour behaves the way it looks on screen. */
+   already-swapped color behaves the way it looks on screen. */
 function resolveSwaps(){
   const out = new Int32Array(CODES.length);
   for (let i = 0; i < CODES.length; i++) {
@@ -1258,7 +1273,7 @@ function closeSwap(){
   swapFrom = null;
   $("swappick").hidden = true;
   $("swapidle").hidden = false;
-  $("swaptitle").textContent = "Swap a colour";
+  $("swaptitle").textContent = "Swap a color";
   renderSwapList();
 }
 
@@ -1290,7 +1305,7 @@ function renderSwapList(){
 
 /* ---------- background removal ---------- */
 
-/* Colour rules and the edge sweep are re-derived from scratch on every
+/* Color rules and the edge sweep are re-derived from scratch on every
    build, so they survive a change of width or simplify. Hand-erased cells
    are positional, so they only hold while the grid size is unchanged. */
 function applyRemoval(){
@@ -1321,10 +1336,10 @@ function countBeads(){
   return n;
 }
 
-/* Clear every contiguous same-colour region that touches an edge.
-   The flood never crosses a colour boundary, so the subject survives and
-   so does an interior pocket of background colour — an eye, a gap between
-   limbs — because it is not reachable from the border in that colour. */
+/* Clear every contiguous same-color region that touches an edge.
+   The flood never crosses a color boundary, so the subject survives and
+   so does an interior pocket of background color — an eye, a gap between
+   limbs — because it is not reachable from the border in that color. */
 function removeEdgeBackground(){
   const seen = new Uint8Array(gw*gh);
   const seeds = [];
@@ -1351,7 +1366,7 @@ function removeEdgeBackground(){
   }
 }
 
-/* Contiguous same-colour region around one cell, for the area eraser. */
+/* Contiguous same-color region around one cell, for the area eraser. */
 function regionAt(x, y){
   const start = y*gw + x, col = grid[start];
   if (col === EMPTY) return [];
@@ -1441,7 +1456,7 @@ function boardLayout(){
   return cx + " \u00D7 " + cy + (cx*cy > 1 ? " boards" : " board") + (exact ? "" : " (partial)");
 }
 
-/* The printed guide area is centred on the board: a 52-peg board printing
+/* The printed guide area is centered on the board: a 52-peg board printing
    a 50 grid has one bare peg all round, a 78 printing 70 has four. */
 function gridArea(){
   const bs = boardSize() || 52;
@@ -1465,7 +1480,7 @@ function drawChart(){
   const ctx = cv.getContext("2d");
   ctx.setTransform(dpr,0,0,dpr,0,0);
   const cs = getComputedStyle(document.body);
-  ctx.fillStyle = cs.getPropertyValue("--surface") || "#fff";
+  ctx.fillStyle = cs.getPropertyValue("--canvas").trim() || "#5C5C5C";
   ctx.fillRect(0,0,W,H);
 
   for (let y = 0; y < gh; y++) {
@@ -1483,9 +1498,9 @@ function drawChart(){
     }
   }
   // grid — matches a printed pegboard: dashed every 5, solid every 10
-  const gStrong = cs.getPropertyValue("--grid-strong").trim() || "rgba(19,41,61,.85)";
-  const gMid    = cs.getPropertyValue("--grid-mid").trim()    || "rgba(19,41,61,.45)";
-  const gFaint  = cs.getPropertyValue("--grid-faint").trim()  || "rgba(19,41,61,.16)";
+  const gStrong = cs.getPropertyValue("--canvas-grid-strong").trim() || "rgba(0,0,0,.72)";
+  const gMid    = cs.getPropertyValue("--canvas-grid-mid").trim()    || "rgba(0,0,0,.44)";
+  const gFaint  = cs.getPropertyValue("--canvas-grid-faint").trim()  || "rgba(0,0,0,.17)";
   for (let x = 0; x <= gw; x++) {
     const heavy = x % 10 === 0, mid = x % 5 === 0;
     if (!heavy && !mid) { ctx.setLineDash([]); ctx.strokeStyle = gFaint; ctx.lineWidth = 0.6; }
@@ -1515,7 +1530,7 @@ function drawChart(){
   }
 
   // rulers
-  ctx.fillStyle = cs.getPropertyValue("--ink-soft") || "#666";
+  ctx.fillStyle = cs.getPropertyValue("--canvas-ink-soft").trim() || "rgba(255,255,255,.76)";
   ctx.font = "500 10px ui-monospace, Menlo, monospace";
   ctx.textBaseline = "middle";
   for (let x = 0; x < gw; x++) if ((x+1) % 5 === 0 || x === 0) {
@@ -1551,7 +1566,7 @@ function render(){
   $("wnote").textContent = `${gw} × ${gh} beads — about ${(gw*2.6/10).toFixed(1)} × ${(gh*2.6/10).toFixed(1)} cm finished`;
   if ($("link").checked) { $("hv").textContent = gh; $("h").value = Math.min(256, Math.max(4, gh)); }
 
-  $("beadcount").textContent = counts.length ? counts.length + (counts.length > 1 ? " colours" : " colour") : "";
+  $("beadcount").textContent = counts.length ? counts.length + (counts.length > 1 ? " colors" : " color") : "";
   const ul = $("list");
   ul.innerHTML = "";
   for (const [i,n] of counts) {
@@ -1637,7 +1652,7 @@ function adoptSource(img, isPng){
   $("smooth").checked = false;
   $("cull").value = 0; $("cullv").textContent = "0";
   say(isPng === false
-    ? `Reading ${w} × ${h} one pixel per bead. This looks like a JPEG, which smears pixel edges — re-export as PNG for exact colours.`
+    ? `Reading ${w} × ${h} one pixel per bead. This looks like a JPEG, which smears pixel edges — re-export as PNG for exact colors.`
     : `Reading ${w} × ${h} one pixel per bead.`,
     isPng === false);
 }
@@ -1873,7 +1888,7 @@ function makePDF(W, H, cells, title, gridOpt){
   doc.text(title || "Bead pattern", M, M+5);
   doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(110);
   doc.text(
-    `${W} × ${H} pegs · ${tot} beads · ${list.length} colours · `
+    `${W} × ${H} pegs · ${tot} beads · ${list.length} colors · `
     + `${(W*2.6/10).toFixed(1)} × ${(H*2.6/10).toFixed(1)} cm finished · `
     + `MARD 2.6 mm` + (boardSize() ? ` · ${boardLayout()}` : ""),
     M, M+10.5
@@ -1931,7 +1946,7 @@ function makePDF(W, H, cells, title, gridOpt){
   doc.setFont("helvetica","bold"); doc.setFontSize(14);
   doc.text("Beads to pull", 14, 18);
   doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(110);
-  doc.text(`${list.length} colours · ${tot} beads total`, 14, 24);
+  doc.text(`${list.length} colors · ${tot} beads total`, 14, 24);
   doc.setTextColor(0);
 
   const colW = (210 - 28) / 3, rowH = 5.6, top = 33;
@@ -2275,13 +2290,14 @@ function drawBoard(){
     ctx.arc(x*cell+cell/2, y*cell+cell/2, Math.max(0.6, cell*0.17), 0, 6.2832);
     ctx.fill();
   }
-  // printed guides, like the real board — centred inside the printed area
+  // printed guides, like the real board — centered inside the printed area
   const { area, margin } = gridArea();
   const g0 = margin*cell, g1 = (margin+area)*cell;
   for (let n = 0; n <= area; n++) {
     const v = (margin+n)*cell;
-    if (n % 10 === 0 || n === area) { ctx.setLineDash([]); ctx.strokeStyle = "rgba(70,150,200,.85)"; ctx.lineWidth = 1; }
-    else if (n % 5 === 0) { ctx.setLineDash([2,3]); ctx.strokeStyle = "rgba(70,150,200,.6)"; ctx.lineWidth = 1; }
+    // widths scale with the peg size, so the guides keep their weight at any zoom
+    if (n % 10 === 0 || n === area) { ctx.setLineDash([]); ctx.strokeStyle = "rgba(70,150,200,.9)"; ctx.lineWidth = Math.max(2, cell * 0.075); }
+    else if (n % 5 === 0) { ctx.setLineDash([cell * 0.22, cell * 0.18]); ctx.strokeStyle = "rgba(70,150,200,.75)"; ctx.lineWidth = Math.max(2, cell * 0.065); }
     else continue;
     ctx.beginPath(); ctx.moveTo(v, g0); ctx.lineTo(v, g1); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(g0, v); ctx.lineTo(g1, v); ctx.stroke();
@@ -2366,7 +2382,7 @@ function placeLibrary(onBoard){
 function setView(v){
   rememberVP();
   view = v;
-  for (const [t,n] of [["tab-preview","preview"],["tab-chart","chart"],["tab-sheet","sheet"],["tab-board","board"],["tab-colours","colours"]])
+  for (const [t,n] of [["tab-preview","preview"],["tab-chart","chart"],["tab-sheet","sheet"],["tab-board","board"],["tab-colors","colors"]])
     $(t).setAttribute("aria-selected", v === n);
   const patternView = v === "preview" || v === "chart" || v === "sheet";
   $("empty").hidden = !(patternView && !grid);
@@ -2375,11 +2391,11 @@ function setView(v){
   $("sheet").hidden = !(v === "sheet" && srcImage);
   $("boardcv").hidden = v !== "board";
   $("boardpanel").hidden = v !== "board";
-  $("colview").hidden = v !== "colours";
-  $("colpanel").hidden = v !== "colours";
+  $("colview").hidden = v !== "colors";
+  $("colpanel").hidden = v !== "colors";
   placeLibrary(v === "board");
   if (v === "board") { drawBoard(); renderBoardStats(); return; }
-  if (v === "colours") { $("vpbar").hidden = true; ensureColView(); return; }
+  if (v === "colors") { $("vpbar").hidden = true; ensureColView(); return; }
   render();
   syncVP();
 }
@@ -2401,7 +2417,7 @@ $("csv").addEventListener("click", () => {
   offer("bead-list.csv", lines.join("\n"));
 });
 
-/* ---------- colour reference ---------- */
+/* ---------- color reference ---------- */
 
 function seriesOf(code){ return code.replace(/[0-9]/g, ""); }
 
@@ -2420,14 +2436,14 @@ function showRefColour(i){
   const lbl = document.createElement("p");
   lbl.className = "note-top";
   lbl.style.margin = "10px 0 0";
-  lbl.textContent = "Closest other colours — check these against your stickers.";
+  lbl.textContent = "Closest other colors — check these against your stickers.";
   d.append(lbl);
   const near = document.createElement("div"); near.className = "swatches";
   for (const j of nearestTo(i, 8)) near.append(swatchButton(j, showRefColour));
   d.append(near);
   if (calib[CODES[i]]) {
     const f = document.createElement("p"); f.className = "note-top"; f.style.margin = "8px 0 0";
-    f.textContent = "Adjusted on this device — factory colour was " +
+    f.textContent = "Adjusted on this device — factory color was " +
       "#" + ORIG_RGB[i].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase() + ".";
     d.append(f);
   }
@@ -2456,7 +2472,7 @@ function buildRefGrid(filter){
   if (!shown) {
     const p = document.createElement("p");
     p.className = "note-top"; p.style.margin = "10px 0 0";
-    p.textContent = (parentUnlocked && onlyUnchecked && !q) ? "Every colour is checked." : "No colour with that code.";
+    p.textContent = (parentUnlocked && onlyUnchecked && !q) ? "Every color is checked." : "No color with that code.";
     grid.append(p);
   }
 }
@@ -2467,7 +2483,7 @@ $("refsearch").addEventListener("input", e => {
   const exact = CODES.indexOf(q);
   if (exact >= 0) showRefColour(exact);
 });
-/* ---------- colour calibration (parent only) ---------- */
+/* ---------- color calibration (parent only) ---------- */
 
 let parentUnlocked = false, refSel = -1, pinMode = null, onlyUnchecked = false;
 
@@ -2484,7 +2500,7 @@ function setChecked(code, on){
   persistChecked();
   refreshRef();
 }
-/* Next colour, in catalogue order, that hasn't been checked yet. */
+/* Next color, in catalogue order, that hasn't been checked yet. */
 function nextUnchecked(from){
   for (let k = 1; k <= CODES.length; k++) {
     const j = (from + k) % CODES.length;
@@ -2523,7 +2539,7 @@ function persistCalib(){
 function getPin(){ try { return localStorage.getItem(PIN_KEY); } catch(e) { return null; } }
 function setPin(v){ try { localStorage.setItem(PIN_KEY, v); return true; } catch(e) { return false; } }
 
-/* Everything that draws a colour reads RGB/LAB, so after a change the
+/* Everything that draws a color reads RGB/LAB, so after a change the
    whole app is refreshed from them: matching, previews, PDFs, library. */
 function calibrationChanged(){
   applyCalibration();
@@ -2549,12 +2565,12 @@ function renderCalib(){
 
   if (!parentUnlocked) {
     if (pinMode) { box.append(pinForm()); return; }
-    const b = mk("button", "linkbtn", "Adjust colours (parent)");
+    const b = mk("button", "linkbtn", "Adjust colors (parent)");
     b.type = "button";
     b.addEventListener("click", () => { pinMode = getPin() ? "enter" : "set"; renderCalib(); });
     bar.append(b);
     const n = Object.keys(calib).length;
-    if (n) bar.append(mk("span", "pbnote", n + (n > 1 ? " colours adjusted" : " colour adjusted")));
+    if (n) bar.append(mk("span", "pbnote", n + (n > 1 ? " colors adjusted" : " color adjusted")));
     box.append(bar);
     return;
   }
@@ -2585,7 +2601,7 @@ function renderCalib(){
   bar.append(lock);
   box.append(bar);
 
-  if (refSel < 0) { box.append(mk("p", "note-top", "Pick a colour below to adjust it.")); return; }
+  if (refSel < 0) { box.append(mk("p", "note-top", "Pick a color below to adjust it.")); return; }
   box.append(editor(refSel));
 }
 
@@ -2593,7 +2609,7 @@ function pinForm(){
   const wrap = mk("div", "pinform");
   const setting = pinMode === "set";
   wrap.append(mk("p", "note-top", setting
-    ? "Choose a parent PIN. You'll need it to adjust colours."
+    ? "Choose a parent PIN. You'll need it to adjust colors."
     : "Enter the parent PIN."));
   const row = mk("div", "fr");
   const a = mk("input"); a.type = "password"; a.inputMode = "numeric"; a.maxLength = 8;
@@ -2698,7 +2714,7 @@ function editor(i){
   wrap.append(row2);
 
   wrap.append(mk("p", "note-top",
-    "Hold the fused swatch next to the screen in daylight and match by eye. Saving marks a colour checked; use Looks right when it already matches."));
+    "Hold the fused swatch next to the screen in daylight and match by eye. Saving marks a color checked; use Looks right when it already matches."));
   return wrap;
 }
 
@@ -2706,7 +2722,7 @@ function ensureColView(){
   if (!$("refgrid").children.length) buildRefGrid($("refsearch").value);
   renderCalib();
 }
-$("tab-colours").addEventListener("click", () => setView("colours"));
+$("tab-colors").addEventListener("click", () => setView("colors"));
 
 /* spritesheet controls */
 function applySheetMode(rerender){
@@ -3019,8 +3035,8 @@ $("libfile").addEventListener("change", e => {
       saveLibrary(); renderLibrary();
       const parts = [];
       if (added) parts.push(`${added} design${added>1?"s":""}`);
-      if (cal) parts.push(`${cal} colour adjustment${cal>1?"s":""}`);
-      if (chk) parts.push(`${chk} checked colour${chk>1?"s":""}`);
+      if (cal) parts.push(`${cal} color adjustment${cal>1?"s":""}`);
+      if (chk) parts.push(`${chk} checked color${chk>1?"s":""}`);
       $("libmsg").textContent = parts.length ? "Added " + parts.join(" and ") + "." : "Nothing new to add.";
     } catch(err) { $("libmsg").textContent = "That file isn't a Beadboard library."; }
     e.target.value = "";
@@ -3056,7 +3072,7 @@ $("preview").addEventListener("click", e => {
   const i = grid[y*gw + x];
   if (i === EMPTY) return;
   if (tool === "swap")  { openSwap(i); return; }
-  if (tool === "colour"){ bgColours.add(i); renderBgList(); regenerate(); return; }
+  if (tool === "color"){ bgColours.add(i); renderBgList(); regenerate(); return; }
   if (tool === "bead")  { erased.add(x + "," + y); erasedDims = gw + "x" + gh; }
   if (tool === "area")  {
     for (const p of regionAt(x, y)) erased.add((p % gw) + "," + ((p / gw) | 0));
@@ -3067,7 +3083,7 @@ $("preview").addEventListener("click", e => {
 $("preview").style.cursor = "pointer";
 
 (function(){
-  const defs = [["swap","Swap colour"],["bead","Erase bead"],["area","Erase area"],["colour","Erase colour"]];
+  const defs = [["swap","Swap color"],["bead","Erase bead"],["area","Erase area"],["color","Erase color"]];
   const box = $("tools");
   for (const [id, label] of defs) {
     const b = document.createElement("button");
@@ -3212,7 +3228,7 @@ function cancelBoardDrag(){
   const stage = $("stage");
 
   stage.addEventListener("pointerdown", e => {
-    if (view === "colours" || !contentEl()) return;
+    if (view === "colors" || !contentEl()) return;
     ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (ptrs.size === 1) {
       downAt = { x: e.clientX, y: e.clientY, moved: false };
@@ -3268,7 +3284,7 @@ function cancelBoardDrag(){
 
   // trackpad pinch arrives as ctrl+wheel; a plain wheel pans
   stage.addEventListener("wheel", e => {
-    if (view === "colours" || !contentEl()) return;
+    if (view === "colors" || !contentEl()) return;
     e.preventDefault();
     const r = stage.getBoundingClientRect();
     if (e.ctrlKey) zoomAt(e.clientX - r.left, e.clientY - r.top, vp.s * Math.exp(-e.deltaY * 0.012));
@@ -3381,6 +3397,84 @@ function squirclePath(w, h, r, smoothing){
   st.id = "squircles";
   st.textContent = `@supports (-webkit-mask-box-image: none){\n${css}}`;
   document.head.append(st);
+})();
+
+/* ============================ dithered primary buttons ============================
+   Primary buttons are filled with an ordered (Bayer) dither: a gradient
+   built from just two shades in 3px squares, the way early game consoles
+   faked smooth color, and the way a bead pattern does. Drawn at the
+   screen's own resolution so every square stays crisp. */
+(function(){
+  const CELL = 5;
+  const B8 = [
+    [ 0,32, 8,40, 2,34,10,42],[48,16,56,24,50,18,58,26],[12,44, 4,36,14,46, 6,38],[60,28,52,20,62,30,54,22],
+    [ 3,35,11,43, 1,33, 9,41],[51,19,59,27,49,17,57,25],[15,47, 7,39,13,45, 5,37],[63,31,55,23,61,29,53,21]];
+  const parse = c => {
+    c = c.trim();
+    if (c[0] === "#") { const h = c.length === 4 ? c.replace(/#(.)(.)(.)/, "#$1$1$2$2$3$3") : c;
+      return [1,3,5].map(i => parseInt(h.slice(i, i+2), 16)); }
+    const m = c.match(/[\d.]+/g); return m ? m.slice(0,3).map(Number) : [240,80,138];
+  };
+  const css = ([r,g,b]) => `rgb(${r|0},${g|0},${b|0})`;
+  const toHsl = ([r,g,b]) => {
+    r/=255; g/=255; b/=255;
+    const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/2, d = mx-mn;
+    if (!d) return [0,0,l];
+    const s = l > .5 ? d/(2-mx-mn) : d/(mx+mn);
+    let h = mx === r ? (g-b)/d + (g<b?6:0) : mx === g ? (b-r)/d + 2 : (r-g)/d + 4;
+    return [h*60, s, l];
+  };
+  const fromHsl = (h, s, l) => {
+    h = ((h % 360) + 360) % 360 / 360;
+    const q = l < .5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
+    const f = t => { t = (t+1)%1; return t<1/6 ? p+(q-p)*6*t : t<1/2 ? q : t<2/3 ? p+(q-p)*(2/3-t)*6 : p; };
+    return [f(h+1/3), f(h), f(h-1/3)].map(v => v*255);
+  };
+
+  function paint(el){
+    const w = el.offsetWidth, h = el.offsetHeight;
+    if (!w || !h) return;
+    const accent = parse(getComputedStyle(document.documentElement).getPropertyValue("--accent"));
+    const key = w + "x" + h + ":" + accent.join(",");
+    if (el.dataset.dither === key) return;
+    // Two close shades. The darker one also drifts toward violet, the way a
+    // painter cools a shadow, so the edges read as depth rather than dirt.
+    const [hh, ss, ll] = toHsl(accent);
+    const deep  = fromHsl(hh - 16, ss * 0.84, ll * 0.90);
+    const light = accent.map(v => v + (255 - v) * 0.12);
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const cols = Math.ceil(w / CELL), rows = Math.ceil(h / CELL), u = CELL * dpr;
+    const cv = document.createElement("canvas");
+    cv.width = Math.ceil(cols * u); cv.height = Math.ceil(rows * u);
+    const x = cv.getContext("2d");
+    x.fillStyle = css(light); x.fillRect(0, 0, cv.width, cv.height);
+    x.fillStyle = css(deep);
+    // Symmetric: lightest at the center, deepening toward both edges. The
+    // dither pattern itself is mirrored too, so the halves are true reflections.
+    const half = cols / 2;
+    for (let j = 0; j < rows; j++)
+      for (let i = 0; i < cols; i++) {
+        const t = Math.abs(i + 0.5 - half) / half;
+        const mi = i < half ? i : cols - 1 - i;
+        if (t > (B8[j & 7][mi & 7] + 0.5) / 64) x.fillRect(Math.floor(i * u), Math.floor(j * u), Math.ceil(u), Math.ceil(u));
+      }
+    el.style.backgroundImage = `url(${cv.toDataURL()})`;
+    el.style.backgroundSize = `${cols * CELL}px ${rows * CELL}px`;
+    el.style.backgroundRepeat = "no-repeat";
+    el.style.backgroundPosition = "center";
+    el.dataset.dither = key;
+  }
+
+  const SEL = ".pick:not(.secondary)";
+  const ro = window.ResizeObserver ? new ResizeObserver(es => es.forEach(e => paint(e.target))) : null;
+  const watch = el => { if (el.dataset.ditherWatched) return; el.dataset.ditherWatched = "1"; ro ? ro.observe(el) : paint(el); };
+  document.querySelectorAll(SEL).forEach(watch);
+  // buttons created later: the PIN form, the color editor
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+    if (n.nodeType !== 1) return;
+    if (n.matches(SEL)) watch(n);
+    n.querySelectorAll && n.querySelectorAll(SEL).forEach(watch);
+  }))).observe(document.body, { childList: true, subtree: true });
 })();
 
 /* empty-state pegboard */
