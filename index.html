@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Beadboard — photo to MARD bead pattern</title>
+<title>Beadboard — images to MARD bead patterns</title>
 <meta name="description" content="Turn photos and pixel art into 2.6 mm MARD fuse bead patterns.">
 <meta name="theme-color" content="#0D1014">
 <!-- Installable: iOS uses the apple-* tags, everything else uses the manifest. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Beadboard">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -455,7 +455,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   padding-top:env(safe-area-inset-top, 0px);
   padding-bottom:env(safe-area-inset-bottom, 0px);
 }
-:root[data-theme="light"]{
+/* An optional light palette, switched only by Beadboard itself. It is keyed
+   to its own attribute: the Claude viewer sets data-theme to match its own
+   mode, which used to flip the app to light on a light-mode Mac. */
+:root[data-bb-theme="light"]{
   --ground:#EDF0F2; --surface:#FFFFFF; --surface-2:#EEF1F4; --surface-3:#E2E7EC;
   --peg:#D5DBE1; --peg-hole:#C0C8D0; --ink:#13293D; --ink-soft:#5B6B7B; --rule:#C8D0D7;
   --accent:#D63C74; --accent-tint:rgba(214,60,116,.12);
@@ -470,21 +473,24 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 /* ---------- masthead ---------- */
-.sub{color:var(--ink-soft);font-size:13.5px;margin:0}
+.tagline{color:var(--ink-soft);font-size:13px;line-height:1.4;margin:12px 2px 0;text-align:center}
 
 /* ---------- layout ---------- */
 /* ---------- board ---------- */
 .viewtabs button{
-  flex:0 0 auto;appearance:none;background:none;border:0;border-bottom:2px solid transparent;
-  font:500 13px var(--ui);color:var(--ink-soft);padding:9px 15px;cursor:pointer;
+  flex:1 1 0;min-width:max-content;appearance:none;background:transparent;border:0;border-radius:var(--r-s);
+  font:500 15px var(--ui);color:var(--ink-soft);padding:9px 14px;cursor:pointer;white-space:nowrap;
+  transition:background-color .15s ease, color .15s ease;
 }
-.viewtabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
-.viewtabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.viewtabs button[aria-selected="true"]{background:var(--surface-3);color:var(--ink);font-weight:600}
+.viewtabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+/* five tabs must fit across a phone; the segments share the width anyway */
+@media (max-width:440px){ .viewtabs button{padding:9px 6px} }
 .scroller canvas{display:block}
 
 /* empty state */
 .empty svg{display:block;margin:0 auto 14px}
-.empty p{margin:0 0 4px;font-size:14px;color:var(--canvas-ink)}
+.empty p{margin:0 0 6px;font-size:14px;color:var(--canvas-ink);max-width:32ch;text-wrap:balance}
 .empty .hint{color:var(--canvas-ink-soft);font-size:13px}
 /* ---------- controls ---------- */
 .panel{background:var(--surface);border:0;border-radius:var(--r-l);padding:16px}
@@ -665,7 +671,7 @@ body{overscroll-behavior:none}
   .app{
     grid-template-columns:minmax(0,1fr) clamp(290px,34vw,400px);
     grid-template-rows:auto auto minmax(0,1fr);
-    grid-template-areas:"head ctrl" "tabs ctrl" "stage ctrl";
+    grid-template-areas:"head head" "tabs ctrl" "stage ctrl";
   }
   .ctrl{border-left:1px solid var(--rule)}
 }
@@ -673,11 +679,11 @@ body{overscroll-behavior:none}
   .ctrl{border-top:1px solid var(--rule)}
 }
 
-header.mast{grid-area:head;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:10px 16px 6px}
+header.mast{grid-area:head;display:flex;align-items:center;justify-content:center;padding:10px 16px 8px}
 h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02em;margin:0;line-height:1}
-@media (max-height:520px){ .sub{display:none} header.mast{padding:6px 14px 2px} h1{font-size:19px} }
+@media (max-height:520px){ header.mast{padding:6px 14px 4px} h1{font-size:19px} }
 
-.viewtabs{grid-area:tabs;display:flex;gap:0;padding:0 8px;border-bottom:1px solid var(--rule);
+.viewtabs{grid-area:tabs;display:flex;gap:3px;margin:2px 8px 2px;padding:3px;background:var(--surface);border-radius:var(--r-m);
   overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .viewtabs::-webkit-scrollbar{display:none}
 
@@ -690,7 +696,7 @@ h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02
 .vpc .scroller{display:block}
 
 .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:22px;text-align:center}
+  padding:24px 40px;text-align:center}
 
 .colview{position:absolute;inset:0;overflow:auto;background:var(--canvas);padding:12px 12px 18px;
   touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -741,7 +747,6 @@ footer p{margin:0 0 7px}
 
   <header class="mast">
   <h1>Beadboard</h1>
-  <p class="sub">Photos into 2.6&nbsp;mm MARD bead patterns</p>
 </header>
 
   <nav class="viewtabs" role="tablist">
@@ -768,8 +773,9 @@ footer p{margin:0 0 7px}
           </g>
           <g id="pegs"></g>
         </svg>
-        <p>Choose a photo to begin</p>
-        <p class="hint">Tap <b>Choose a photo</b> to pick from your library or take one.<br>On a computer you can also drop a file here, or paste one.</p>
+        <p>Choose an image to begin</p>
+        <p class="hint">Tap <b>Choose an image</b> to pick from your library or take a photo.</p>
+        <p class="hint">On a computer you can also drop a file here, or paste one.</p>
       </div>
       <div class="colview" id="colview" hidden>
         <input type="search" id="refsearch" placeholder="Find a code — G9, H, B17" autocomplete="off" autocapitalize="characters">
@@ -784,9 +790,10 @@ footer p{margin:0 0 7px}
 
   <aside class="ctrl" id="ctrl">
     <div class="panel">
-      <label class="pick" for="file">Choose a photo</label>
+      <label class="pick" for="file">Choose an image</label>
       <input type="file" id="file" accept="image/*">
       <button class="pick secondary" id="sample">Try a sample image</button>
+      <p class="tagline">Photos and pixel art into 2.6&nbsp;mm MARD bead patterns</p>
     </div>
 
     <details class="panel sec" data-sec="board" id="boardpanel" hidden open>
@@ -868,12 +875,12 @@ footer p{margin:0 0 7px}
       <div class="ctl">
         <label for="h">Height in beads <span class="val" id="hv">44</span></label>
         <input type="range" id="h" min="4" max="256" value="44" step="1" disabled>
-        <span class="note">Unlock proportions to set this. The photo is cropped from the center to fit, never stretched.</span>
+        <span class="note">Unlock proportions to set this. The image is cropped from the center to fit, never stretched.</span>
       </div>
 
       <div class="row">
         <input type="checkbox" id="link" checked>
-        <label for="link">Keep the photo's proportions</label>
+        <label for="link">Keep the image's proportions</label>
       </div>
 
       <div class="ctl">
@@ -884,7 +891,7 @@ footer p{margin:0 0 7px}
 
       <div class="row">
         <input type="checkbox" id="smooth" checked>
-        <label for="smooth">Smooth the photo first</label>
+        <label for="smooth">Smooth the image first</label>
       </div>
       <div class="row">
         <input type="checkbox" id="distinct" checked>
@@ -1592,7 +1599,7 @@ function regenerate(){ buildGrid(); render(); }
 /* ============================ loading ============================ */
 function loadFile(file){
   if (!file || !(file.type || "").startsWith("image/")) {
-    say("That file isn't an image. Try a JPG, PNG or HEIC photo.", true); return;
+    say("That file isn't an image. Try a PNG, JPG or HEIC image.", true); return;
   }
   /* Read as a data URL rather than a blob URL. On a page opened straight
      from disk, a blob-backed image counts as foreign origin and the browser
@@ -2401,7 +2408,7 @@ function setView(v){
 }
 
 $("pdf").addEventListener("click", async () => {
-  if (!grid) { say("Choose a photo first.", true); return; }
+  if (!grid) { say("Choose an image first.", true); return; }
   say("Building the PDF…");
   await new Promise(r => setTimeout(r, 30));
   try { await offer("bead-pattern.pdf", makePDF(gw, gh, grid, "Bead pattern")); }
@@ -2409,7 +2416,7 @@ $("pdf").addEventListener("click", async () => {
 });
 
 $("csv").addEventListener("click", () => {
-  if (!grid) { say("Choose a photo first.", true); return; }
+  if (!grid) { say("Choose an image first.", true); return; }
   const tot = beadTotal();
   const lines = ["code,hex,beads,percent"];
   for (const [i,n] of counts)
@@ -3380,8 +3387,8 @@ function squirclePath(w, h, r, smoothing){
   const px = v => parseFloat(cs.getPropertyValue(v)) || 8;
   // which elements get which radius
   const groups = [
-    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno"],
-    [px("--r-m"), ".pick"],
+    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno, .viewtabs button"],
+    [px("--r-m"), ".pick, .viewtabs"],
     [px("--r-l"), ".panel, .stage"]
   ];
   let css = "";

@@ -27,7 +27,7 @@ Designs and color adjustments are stored on each device. Use **Export** and **Im
 
 ## Maintaining it
 
-**Updating the app.** Replace `index.html`, then change `CACHE` in `sw.js` to the next version number, for example `beadboard-v16` to `beadboard-v17`. Without the bump, installed copies keep serving the old version from their offline cache. Reopen the app while online to pick up the change.
+**Updating the app.** Replace `index.html`, then change `CACHE` in `sw.js` to the next version number, for example `beadboard-v18` to `beadboard-v19`. Without the bump, installed copies keep serving the old version from their offline cache. Reopen the app while online to pick up the change.
 
 **Replacing the icons.** Swap these files, keeping the exact names and pixel sizes:
 
