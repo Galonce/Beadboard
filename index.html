@@ -483,9 +483,16 @@ body{
   transition:background-color .15s ease, color .15s ease;
 }
 .viewtabs button[aria-selected="true"]{background:var(--surface-3);color:var(--ink);font-weight:600}
+.viewtabs button{display:flex;align-items:center;justify-content:center;gap:7px}
+.tabicon{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.viewtabs button[aria-selected="true"] .tabicon{color:var(--accent)}
 .viewtabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 /* five tabs must fit across a phone; the segments share the width anyway */
-@media (max-width:440px){ .viewtabs button{padding:9px 6px} }
+@media (max-width:440px){
+  /* on phones the icon stacks above the label, like an iOS tab bar */
+  .viewtabs button{flex-direction:column;gap:3px;padding:7px 4px 6px;font-size:12px}
+  .tabicon{width:20px;height:20px}
+}
 .scroller canvas{display:block}
 
 /* empty state */
@@ -589,14 +596,31 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .refser{font:600 11px var(--mono);color:var(--ink-soft);margin:9px 0 1px;width:100%}
 .colview .refser,.colview .note-top{color:var(--canvas-ink-soft)}
 .lib{list-style:none;margin:12px 0 0;padding:0;max-height:230px;overflow:auto}
-.lib li{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+.lib li{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--rule)}
 .lib li:last-child{border-bottom:0}
-.lib li:hover .lname{color:var(--accent)}
+.lib .lname{display:flex;flex-direction:column;gap:1px}
+.lib .lnm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib li.isopen .lnm{color:var(--accent)}
+.lib .lact{flex:none;font:600 12.5px var(--ui);padding:7px 10px;border:0;border-radius:var(--r-s);
+  background:var(--surface-2);color:var(--ink);cursor:pointer}
+.lib .lact:active{transform:scale(.96)}
+.libediting{margin:0 0 12px;padding:10px 12px;background:var(--surface-2);border-radius:var(--r-m)}
+.libediting p{margin:0 0 8px;font-size:13px;color:var(--ink-soft)}
+.libediting p b{color:var(--ink)}
 .lib canvas{flex:none;border:1px solid var(--rule);border-radius:2px;background:var(--ground);image-rendering:pixelated}
 .lib .lname{flex:1 1 auto;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lib .ldim{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
 .lib .ldel{background:none;border:0;color:var(--ink-soft);cursor:pointer;font:500 15px var(--ui);padding:0 3px}
 .librow{display:flex;gap:7px;margin-top:9px}
+.importask{margin-top:12px;padding:12px 14px;background:var(--surface-2);border-radius:var(--r-m)}
+.importhead{margin:0 0 4px;font-size:13.5px;font-weight:600}
+.importopt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer;font-size:13.5px}
+.importopt input{accent-color:var(--accent);width:17px;height:17px;flex:none;margin:1px 0 0}
+.importopt.off{cursor:default;opacity:.6}
+.importtext{display:flex;flex-direction:column;gap:2px}
+.importnote{color:var(--ink-soft);font-size:12px;line-height:1.35}
+.importtext span{text-wrap:balance}
+.importask .pick.secondary{background:var(--surface-3)}
 .boardpick{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
 .boardpick .quick{margin-top:0}
 .lib li.libconfirm{flex-wrap:wrap;gap:8px 10px}
@@ -680,6 +704,12 @@ body{overscroll-behavior:none}
 }
 
 header.mast{grid-area:head;display:flex;align-items:center;justify-content:center;padding:10px 16px 8px}
+/* iOS 26 blurs the top band of a Home Screen web app whatever the status
+   bar setting. From a device screenshot, the blur fades out roughly 70pt
+   from the top of the screen, so in the installed app the logo sits below
+   it. Phones held sideways hide the status bar, so they keep the slim header. */
+@media (display-mode: standalone) and (min-height: 521px){ header.mast{padding-top:50px} }
+@media (min-height: 521px){ html.ios-standalone header.mast{padding-top:50px} }
 h1{font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02em;margin:0;line-height:1}
 @media (max-height:520px){ header.mast{padding:6px 14px 4px} h1{font-size:19px} }
 
@@ -742,7 +772,7 @@ footer p{margin:0 0 7px}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-board" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-color" viewBox="0 0 24 24"><path d="M12 2.8c3.8 4.6 6.4 8.1 6.4 11.4a6.4 6.4 0 0 1-12.8 0c0-3.3 2.6-6.8 6.4-11.4z"/><path d="M8.9 14.6a3.2 3.2 0 0 0 2.6 3"/></symbol><symbol id="i-sheet" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><rect x="6" y="6" width="3.6" height="3.6" rx=".8" fill="currentColor" stroke="none"/></symbol><symbol id="i-pattern" viewBox="0 0 24 24"><path d="M4 7.5h9.5M18.5 7.5H20M4 16.5h3.5M12.5 16.5H20"/><circle cx="16" cy="7.5" r="2.5"/><circle cx="10" cy="16.5" r="2.5"/></symbol><symbol id="i-background" viewBox="0 0 24 24"><g transform="rotate(-45 12 11)"><rect x="4.5" y="7.5" width="15" height="7" rx="2"/><path d="M10 7.5v7"/></g><path d="M5 20.5h14"/></symbol><symbol id="i-beads" viewBox="0 0 24 24"><circle cx="5.8" cy="5.5" r="1.7"/><circle cx="5.8" cy="12" r="1.7"/><circle cx="5.8" cy="18.5" r="1.7"/><path d="M10.5 5.5h9.5M10.5 12h9.5M10.5 18.5h6"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M4.5 8.5h13M14 5l3.5 3.5L14 12M19.5 15.5h-13M10 12l-3.5 3.5L10 19"/></symbol><symbol id="i-library" viewBox="0 0 24 24"><rect x="7.5" y="3.5" width="13" height="13" rx="2.5"/><path d="M16.5 20.5h-9a4 4 0 0 1-4-4v-9"/><circle cx="12" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.1" fill="currentColor" stroke="none"/></symbol><symbol id="i-export" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M12 10.8v6.2M9.4 14.5L12 17l2.6-2.5"/></symbol></defs></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-board" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-color" viewBox="0 0 24 24"><path d="M12 2.8c3.8 4.6 6.4 8.1 6.4 11.4a6.4 6.4 0 0 1-12.8 0c0-3.3 2.6-6.8 6.4-11.4z"/><path d="M8.9 14.6a3.2 3.2 0 0 0 2.6 3"/></symbol><symbol id="i-sheet" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><rect x="6" y="6" width="3.6" height="3.6" rx=".8" fill="currentColor" stroke="none"/></symbol><symbol id="i-pattern" viewBox="0 0 24 24"><path d="M4 7.5h9.5M18.5 7.5H20M4 16.5h3.5M12.5 16.5H20"/><circle cx="16" cy="7.5" r="2.5"/><circle cx="10" cy="16.5" r="2.5"/></symbol><symbol id="i-background" viewBox="0 0 24 24"><g transform="rotate(-45 12 11)"><rect x="4.5" y="7.5" width="15" height="7" rx="2"/><path d="M10 7.5v7"/></g><path d="M5 20.5h14"/></symbol><symbol id="i-beads" viewBox="0 0 24 24"><circle cx="5.8" cy="5.5" r="1.7"/><circle cx="5.8" cy="12" r="1.7"/><circle cx="5.8" cy="18.5" r="1.7"/><path d="M10.5 5.5h9.5M10.5 12h9.5M10.5 18.5h6"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M4.5 8.5h13M14 5l3.5 3.5L14 12M19.5 15.5h-13M10 12l-3.5 3.5L10 19"/></symbol><symbol id="i-library" viewBox="0 0 24 24"><rect x="7.5" y="3.5" width="13" height="13" rx="2.5"/><path d="M16.5 20.5h-9a4 4 0 0 1-4-4v-9"/><circle cx="12" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.1" fill="currentColor" stroke="none"/></symbol><symbol id="i-export" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M12 10.8v6.2M9.4 14.5L12 17l2.6-2.5"/></symbol><symbol id="i-preview" viewBox="0 0 24 24"><circle cx="7.75" cy="7.75" r="3.4"/><circle cx="16.25" cy="7.75" r="3.4"/><circle cx="7.75" cy="16.25" r="3.4"/><circle cx="16.25" cy="16.25" r="3.4"/></symbol><symbol id="i-codes" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><path d="M6.3 7.9h2.9M14.8 7.9h2.9M6.3 16.1h2.9M14.8 16.1h2.9"/></symbol></defs></svg>
 <div class="app" id="app">
 
   <header class="mast">
@@ -750,11 +780,11 @@ footer p{margin:0 0 7px}
 </header>
 
   <nav class="viewtabs" role="tablist">
-      <button role="tab" id="tab-preview" aria-selected="true">Preview</button>
-      <button role="tab" id="tab-chart" aria-selected="false">Codes</button>
-      <button role="tab" id="tab-sheet" aria-selected="false">Sheet</button>
-      <button role="tab" id="tab-board" aria-selected="false">Board</button>
-      <button role="tab" id="tab-colors" aria-selected="false">Colors</button>
+      <button role="tab" id="tab-preview" aria-selected="true"><svg class="tabicon" aria-hidden="true" focusable="false"><use href="#i-preview"/></svg><span>Preview</span></button>
+      <button role="tab" id="tab-chart" aria-selected="false"><svg class="tabicon" aria-hidden="true" focusable="false"><use href="#i-codes"/></svg><span>Codes</span></button>
+      <button role="tab" id="tab-sheet" aria-selected="false"><svg class="tabicon" aria-hidden="true" focusable="false"><use href="#i-sheet"/></svg><span>Sheet</span></button>
+      <button role="tab" id="tab-board" aria-selected="false"><svg class="tabicon" aria-hidden="true" focusable="false"><use href="#i-board"/></svg><span>Board</span></button>
+      <button role="tab" id="tab-colors" aria-selected="false"><svg class="tabicon" aria-hidden="true" focusable="false"><use href="#i-color"/></svg><span>Colors</span></button>
     </nav>
 
   <div class="stagewrap" id="board">
@@ -802,7 +832,7 @@ footer p{margin:0 0 7px}
         <span class="pbnote">Board</span>
         <div class="quick" id="boardsizes"></div>
       </div>
-      <p class="note-top">Tap a design in the library to drop it on the board, then drag it. One empty peg is always kept between designs.</p>
+      <p class="note-top">Tap <b>+ Board</b> on a design in the library to drop it on the board, then drag it. One empty peg is always kept between designs.</p>
       <div class="quick" id="boardtools">
         <button type="button" id="bt-rot">Rotate</button>
         <button type="button" id="bt-fliph">Flip ↔</button>
@@ -812,6 +842,10 @@ footer p{margin:0 0 7px}
       <div class="quick" style="margin-top:8px">
         <button type="button" id="bt-pack">Auto-arrange</button>
         <button type="button" id="bt-clear">Clear board</button>
+      </div>
+      <div class="row">
+        <input type="checkbox" id="boardcodes">
+        <label for="boardcodes">Show codes on beads</label>
       </div>
       <dl class="stats">
         <div><dt>On board</dt><dd id="b-items">0</dd></div>
@@ -970,6 +1004,10 @@ footer p{margin:0 0 7px}
 
     <details class="panel sec" data-sec="library" id="libpanel">
       <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-library"/></svg><h2>Library</h2></summary>
+      <div class="libediting" id="libediting" hidden>
+        <p id="libeditingtext"></p>
+        <button class="pick" id="libupdate" type="button">Save changes</button>
+      </div>
       <div class="fr" style="margin-bottom:8px">
         <label for="libname" style="flex:none">Name</label>
         <input type="text" id="libname" maxlength="40" placeholder="Design 1" autocomplete="off" style="width:100%;font-family:var(--ui)">
@@ -981,6 +1019,7 @@ footer p{margin:0 0 7px}
         <button class="pick secondary" id="libimport">Import</button>
         <input type="file" id="libfile" accept="application/json,.json">
       </div>
+      <div class="importask" id="libimportask" hidden></div>
       <p class="msg" id="libmsg"></p>
     </details>
 
@@ -1597,6 +1636,44 @@ function render(){
 function regenerate(){ buildGrid(); render(); }
 
 /* ============================ loading ============================ */
+/* Everything after an image is decoded: reset per-image edits, detect a
+   sprite sheet, adopt pixel-art settings, and build the pattern. Used for a
+   chosen file and for opening a design from the library. */
+function startFromImage(img, opts){
+  opts = opts || {};
+    try {
+      srcRaw = img;
+      srcSmall = shrinkIfHuge(img);
+      srcImage = srcSmall;
+      crop = null; srcAlpha = null; alphaOf = null;
+      swaps.clear(); swapFrom = null; closeSwap();
+      bgColours.clear(); erased.clear(); erasedDims = ""; removedCount = 0;
+      $("bgedge").checked = false;
+      const sheet = !opts.noSheet && looksLikeSheet(srcRaw);
+      $("sheetpanel").hidden = false;          // always offer the option
+      $("assheet").checked = sheet;
+      const f = guessFrame(srcImage);
+      $("fw").value = f; $("fh").value = f;
+      lastFrame = f + "x" + f;
+      $("ox").value = 0; $("oy").value = 0;
+      $("oxv").textContent = "0"; $("oyv").textContent = "0";
+      lastPick = null;
+      markQuick(); syncOffsetRange();
+      $("smsg").textContent = sheet
+        ? `Detected a ${srcImage.width/f} × ${srcImage.height/f} grid of ${f}px frames.`
+        : "";
+      applySheetMode(false);
+      adoptSource(srcImage, opts.isPng);
+      regenerate();
+      setView(sheet ? "sheet" : "preview");
+      renderEditing();
+    } catch (err) {
+      say("Couldn't process that image — " + (err && err.name === "SecurityError"
+        ? "the browser blocked reading its pixels."
+        : "try a smaller one."), true);
+    }
+}
+
 function loadFile(file){
   if (!file || !(file.type || "").startsWith("image/")) {
     say("That file isn't an image. Try a PNG, JPG or HEIC image.", true); return;
@@ -1610,36 +1687,8 @@ function loadFile(file){
     const img = new Image();
     img.onerror = () => say("Couldn't read that image. Try exporting it as a PNG or JPG.", true);
     img.onload = () => {
-      try {
-        srcRaw = img;
-        srcSmall = shrinkIfHuge(img);
-        srcImage = srcSmall;
-        crop = null; srcAlpha = null; alphaOf = null;
-        swaps.clear(); swapFrom = null; closeSwap();
-        bgColours.clear(); erased.clear(); erasedDims = ""; removedCount = 0;
-        $("bgedge").checked = false;
-        const sheet = looksLikeSheet(srcRaw);
-        $("sheetpanel").hidden = false;          // always offer the option
-        $("assheet").checked = sheet;
-        const f = guessFrame(srcImage);
-        $("fw").value = f; $("fh").value = f;
-        lastFrame = f + "x" + f;
-        $("ox").value = 0; $("oy").value = 0;
-        $("oxv").textContent = "0"; $("oyv").textContent = "0";
-        lastPick = null;
-        markQuick(); syncOffsetRange();
-        $("smsg").textContent = sheet
-          ? `Detected a ${srcImage.width/f} × ${srcImage.height/f} grid of ${f}px frames.`
-          : "";
-        applySheetMode(false);
-        adoptSource(srcImage, /\.png$/i.test(file.name || ""));
-        regenerate();
-        setView(sheet ? "sheet" : "preview");
-      } catch (err) {
-        say("Couldn't process that image — " + (err && err.name === "SecurityError"
-          ? "the browser blocked reading its pixels."
-          : "try a smaller one."), true);
-      }
+      editingLib = null;
+      startFromImage(img, { isPng: /\.png$/i.test(file.name || "") });
     };
     img.src = reader.result;
   };
@@ -1827,6 +1876,7 @@ function sampleImage(){
   const img = new Image();
   img.onload = () => {
     srcRaw = srcSmall = srcImage = img; crop = null; srcAlpha = null; alphaOf = null;
+    editingLib = null; renderEditing();
     $("sheetpanel").hidden = true; $("tab-sheet").hidden = true;
     $("assheet").checked = false; $("sheetopts").hidden = true;
     say(""); setView("preview"); regenerate();
@@ -1981,6 +2031,7 @@ function makePDF(W, H, cells, title, gridOpt){
 const LIB_KEY = "beadboard:library";
 let library = [];          // {id, name, w, h, rle}
 let pendingDelete = null;  // library id awaiting confirmation
+let editingLib = null;     // library id of the design open as the current pattern
 let placed  = [];          // {lib, x, y, rot, flip, w, h, cells}
 let selected = -1;
 
@@ -2068,6 +2119,60 @@ function saveCurrentToLibrary(){
 
 function libCells(entry){ return decodeCells(entry.rle, entry.w * entry.h); }
 
+/* Open a saved design as the current pattern. It's redrawn one pixel per
+   bead in its exact bead colors, then goes through the same loading path
+   as any image, so every view and tool works on it unchanged. */
+function openFromLibrary(entry){
+  const cells = libCells(entry);
+  const c = document.createElement("canvas"); c.width = entry.w; c.height = entry.h;
+  const x = c.getContext("2d"); const im = x.createImageData(entry.w, entry.h);
+  for (let p = 0; p < cells.length; p++) {
+    const v = cells[p]; if (v === EMPTY) continue;
+    const [r, g, b] = RGB[v];
+    im.data[p*4] = r; im.data[p*4+1] = g; im.data[p*4+2] = b; im.data[p*4+3] = 255;
+  }
+  x.putImageData(im, 0, 0);
+  const img = new Image();
+  img.onload = () => {
+    startFromImage(img, { isPng: true, noSheet: true });
+    editingLib = entry.id;
+    $("distinct").checked = true; regenerate();
+    say(`Opened \u201C${entry.name}\u201D from the library.`);
+    renderEditing(); renderLibrary();
+    setView("preview");
+  };
+  img.src = c.toDataURL();
+}
+
+function renderEditing(){
+  const entry = editingLib && library.find(d => d.id === editingLib);
+  if (!entry) { editingLib = null; $("libediting").hidden = true; return; }
+  $("libediting").hidden = false;
+  $("libeditingtext").innerHTML = "";
+  $("libeditingtext").append("Open now: ", Object.assign(document.createElement("b"), { textContent: entry.name }),
+    ". Changes stay here until you save them.");
+  $("libupdate").textContent = `Save changes to \u201C${entry.name}\u201D`;
+}
+
+/* Write the current pattern back over the open design. Anywhere it sits on
+   the board picks up the change; if it grew and no longer fits, it moves. */
+function saveChangesToLibrary(){
+  const entry = editingLib && library.find(d => d.id === editingLib);
+  if (!entry || !grid) return;
+  const t = tightBounds(grid, gw, gh);
+  if (!t) { $("libmsg").textContent = "Nothing to save — every bead is removed."; return; }
+  entry.w = t.w; entry.h = t.h; entry.rle = encodeCells(t.cells);
+  const ok = saveLibrary();
+  let onBoard = 0;
+  for (const pl of placed) if (pl.lib === entry.id) { rebuild(pl); onBoard++; }
+  if (onBoard) refitPlacements();
+  renderLibrary(); renderBoardStats();
+  if (view === "board") drawBoard();
+  $("libmsg").textContent = !ok ? "Couldn't save — storage may be full."
+    : `Saved changes to \u201C${entry.name}\u201D` + (onBoard ? ", and updated it on the board." : ".");
+}
+$("libupdate").addEventListener("click", saveChangesToLibrary);
+
 function renderLibrary(){
   const ul = $("liblist"); ul.innerHTML = "";
   if (!library.length) {
@@ -2114,6 +2219,7 @@ function renderLibrary(){
         library = library.filter(d => d.id !== entry.id);
         placed = placed.filter(pl => pl.lib !== entry.id);
         selected = -1; pendingDelete = null;
+        if (editingLib === entry.id) { editingLib = null; renderEditing(); }
         saveLibrary(); renderLibrary(); drawBoard(); renderBoardStats();
         $("libmsg").textContent = `Deleted \u201C${entry.name}\u201D.`;
       });
@@ -2125,8 +2231,17 @@ function renderLibrary(){
       continue;
     }
 
-    li.append(cv, nm, dm, del);
-    li.addEventListener("click", () => addToBoard(entry));
+    const opn = document.createElement("button"); opn.type = "button"; opn.className = "lact"; opn.textContent = "Open";
+    opn.title = "Open this design to view or edit it";
+    opn.addEventListener("click", e => { e.stopPropagation(); openFromLibrary(entry); });
+    const brd = document.createElement("button"); brd.type = "button"; brd.className = "lact"; brd.textContent = "+ Board";
+    brd.title = "Add this design to the board";
+    brd.addEventListener("click", e => { e.stopPropagation(); addToBoard(entry); });
+    const txt = document.createElement("span"); txt.className = "lname";
+    txt.append(nm, dm);
+    nm.className = "lnm";
+    if (entry.id === editingLib) li.classList.add("isopen");
+    li.append(cv, txt, opn, brd, del);
     ul.append(li);
   }
 }
@@ -2311,6 +2426,7 @@ function drawBoard(){
   }
   ctx.setLineDash([]);
 
+  const showCodes = $("boardcodes").checked;
   placed.forEach((pl, idx) => {
     for (let y = 0; y < pl.h; y++) for (let x = 0; x < pl.w; x++) {
       const i = pl.cells[y*pl.w+x];
@@ -2322,7 +2438,13 @@ function drawBoard(){
       if (ctx.roundRect) ctx.roundRect(px+0.5, py+0.5, cell-1, cell-1, Math.max(1, cell*0.28));
       else ctx.rect(px+0.5, py+0.5, cell-1, cell-1);
       ctx.fill();
-      if (cell >= 7) {
+      if (showCodes) {
+        // the code takes the place of the bead hole; pinch in to read it comfortably
+        ctx.fillStyle = isDark(i) ? "#fff" : "#000";
+        ctx.font = `700 ${Math.round(cell * (CODES[i].length > 3 ? 0.30 : 0.36))}px ui-monospace, Menlo, monospace`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(CODES[i], px + cell/2, py + cell/2 + 0.5);
+      } else if (cell >= 7) {
         ctx.globalAlpha = .28; ctx.fillStyle = "#000";
         ctx.beginPath(); ctx.arc(px+cell/2, py+cell/2, Math.max(.8, cell*0.15), 0, 6.2832); ctx.fill();
         ctx.globalAlpha = 1;
@@ -2901,6 +3023,7 @@ $("bt-del").addEventListener("click", () => {
   drawBoard(); renderBoardStats();
 });
 $("bt-pack").addEventListener("click", packBoard);
+$("boardcodes").addEventListener("change", () => drawBoard());
 $("bt-clear").addEventListener("click", () => {
   const b = $("bt-clear");
   if (!placed.length) return;
@@ -3011,45 +3134,103 @@ $("libexport").addEventListener("click", () => {
   } else $("libmsg").textContent = "Saving files isn't available here.";
 });
 $("libimport").addEventListener("click", () => $("libfile").click());
+/* Import reads the file, then asks which parts to bring in. Designs are on
+   by default; color adjustments are off, because they were tuned on another
+   screen, and they only unlock with the parent PIN. */
+let pendingImport = null;
+
 $("libfile").addEventListener("change", e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
   r.onload = () => {
     try {
       const data = JSON.parse(r.result);
-      const incoming = Array.isArray(data) ? data : (data.designs || []);
-      if (!Array.isArray(incoming)) throw new Error("shape");
-      let cal = 0;
-      if (data && data.calibration && typeof data.calibration === "object") {
-        for (const [code, c] of Object.entries(data.calibration)) {
-          if (CODES.includes(code) && Array.isArray(c) && c.length === 3) { calib[code] = c.map(Number); cal++; }
-        }
-        if (cal) calibrationChanged();
-      }
-      let chk = 0;
-      if (data && Array.isArray(data.checked)) {
-        for (const c of data.checked) if (CODES.includes(c) && !checked.has(c)) { checked.add(c); chk++; }
-        if (chk) { persistChecked(); refreshRef(); }
-      }
-      const have = new Set(library.map(d => d.id));
-      let added = 0;
-      for (const d of incoming) {
-        if (!d || !d.id || !d.rle || !d.w || !d.h) continue;
-        if (have.has(d.id)) continue;
-        library.push({ id: d.id, name: String(d.name || "Untitled"), w: +d.w, h: +d.h, rle: String(d.rle) });
-        added++;
-      }
-      saveLibrary(); renderLibrary();
-      const parts = [];
-      if (added) parts.push(`${added} design${added>1?"s":""}`);
-      if (cal) parts.push(`${cal} color adjustment${cal>1?"s":""}`);
-      if (chk) parts.push(`${chk} checked color${chk>1?"s":""}`);
-      $("libmsg").textContent = parts.length ? "Added " + parts.join(" and ") + "." : "Nothing new to add.";
-    } catch(err) { $("libmsg").textContent = "That file isn't a Beadboard library."; }
+      const designs = (Array.isArray(data) ? data : (data.designs || []))
+        .filter(d => d && d.id && d.rle && d.w && d.h);
+      const calibration = {};
+      if (data && data.calibration && typeof data.calibration === "object")
+        for (const [code, c] of Object.entries(data.calibration))
+          if (CODES.includes(code) && Array.isArray(c) && c.length === 3) calibration[code] = c.map(Number);
+      const progress = (data && Array.isArray(data.checked)) ? data.checked.filter(c => CODES.includes(c)) : [];
+      if (!designs.length && !Object.keys(calibration).length && !progress.length) throw new Error("empty");
+      pendingImport = { designs, calibration, progress };
+      $("libmsg").textContent = "";
+      renderImportAsk();
+    } catch(err) { pendingImport = null; renderImportAsk(); $("libmsg").textContent = "That file isn't a Beadboard library."; }
     e.target.value = "";
   };
   r.readAsText(f);
 });
+
+function renderImportAsk(){
+  const box = $("libimportask");
+  box.innerHTML = "";
+  if (!pendingImport) { box.hidden = true; return; }
+  box.hidden = false;
+  const have = new Set(library.map(d => d.id));
+  const fresh = pendingImport.designs.filter(d => !have.has(d.id)).length;
+  const dupes = pendingImport.designs.length - fresh;
+  const nCal = Object.keys(pendingImport.calibration).length, nChk = pendingImport.progress.length;
+
+  box.append(mk("p", "importhead", "Bring in from this file:"));
+
+  const option = (id, text, on, off, note) => {
+    const row = mk("label", "importopt");
+    const cb = mk("input"); cb.type = "checkbox"; cb.id = id; cb.checked = on && !off; cb.disabled = off;
+    const body = mk("span", "importtext");
+    body.append(mk("span", "", text));
+    if (note) body.append(mk("span", "importnote", note));
+    row.append(cb, body);
+    if (off) row.classList.add("off");
+    box.append(row);
+  };
+  if (pendingImport.designs.length)
+    option("imp-designs",
+      fresh ? `Designs — ${fresh} new` : "Designs — none new",
+      true, !fresh,
+      dupes ? `${dupes} already in your library ${dupes > 1 ? "are" : "is"} skipped.` : "");
+  if (nCal || nChk)
+    option("imp-colors",
+      `Color adjustments — ${nCal}` + (nChk ? ` · ${nChk} checked` : ""),
+      false, !parentUnlocked,
+      parentUnlocked ? "Replaces this device's values for those colors. They were tuned on another screen."
+                     : "Unlock color adjustments in the Colors tab to bring these in.");
+
+  const row = mk("div", "librow");
+  const go = mk("button", "pick", "Import"); go.type = "button";
+  const no = mk("button", "pick secondary", "Cancel"); no.type = "button"; no.style.marginTop = "0";
+  go.addEventListener("click", applyImport);
+  no.addEventListener("click", () => { pendingImport = null; renderImportAsk(); $("libmsg").textContent = ""; });
+  row.append(go, no); box.append(row);
+}
+
+function applyImport(){
+  if (!pendingImport) return;
+  const wantDesigns = $("imp-designs") && $("imp-designs").checked;
+  const wantColors  = $("imp-colors")  && $("imp-colors").checked && parentUnlocked;
+  let added = 0, cal = 0, chk = 0;
+  if (wantDesigns) {
+    const have = new Set(library.map(d => d.id));
+    for (const d of pendingImport.designs) {
+      if (have.has(d.id)) continue;
+      library.push({ id: d.id, name: String(d.name || "Untitled"), w: +d.w, h: +d.h, rle: String(d.rle) });
+      added++;
+    }
+    if (added) { saveLibrary(); renderLibrary(); }
+  }
+  if (wantColors) {
+    for (const [code, c] of Object.entries(pendingImport.calibration)) { calib[code] = c; cal++; }
+    if (cal) calibrationChanged();
+    for (const c of pendingImport.progress) if (!checked.has(c)) { checked.add(c); chk++; }
+    if (chk) { persistChecked(); refreshRef(); }
+  }
+  pendingImport = null; renderImportAsk();
+  const parts = [];
+  if (added) parts.push(`${added} design${added > 1 ? "s" : ""}`);
+  if (cal) parts.push(`${cal} color adjustment${cal > 1 ? "s" : ""}`);
+  if (chk) parts.push(`${chk} checked color${chk > 1 ? "s" : ""}`);
+  $("libmsg").textContent = parts.length ? "Added " + parts.join(" and ") + "." : "Nothing was imported.";
+}
 
 loadLibrary();
 
@@ -3387,8 +3568,8 @@ function squirclePath(w, h, r, smoothing){
   const px = v => parseFloat(cs.getPropertyValue(v)) || 8;
   // which elements get which radius
   const groups = [
-    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno, .viewtabs button"],
-    [px("--r-m"), ".pick, .viewtabs"],
+    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno, .viewtabs button, .lib .lact"],
+    [px("--r-m"), ".pick, .viewtabs, .importask, .libediting"],
     [px("--r-l"), ".panel, .stage"]
   ];
   let css = "";
@@ -3483,6 +3664,10 @@ function squirclePath(w, h, r, smoothing){
     n.querySelectorAll && n.querySelectorAll(SEL).forEach(watch);
   }))).observe(document.body, { childList: true, subtree: true });
 })();
+
+/* Older iOS versions report Home Screen launch here rather than through
+   the display-mode media query. */
+if (window.navigator.standalone) document.documentElement.classList.add("ios-standalone");
 
 /* empty-state pegboard */
 (function(){
