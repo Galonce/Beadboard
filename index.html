@@ -612,6 +612,16 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .lib .ldim{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
 .lib .ldel{background:none;border:0;color:var(--ink-soft);cursor:pointer;font:500 15px var(--ui);padding:0 3px}
 .librow{display:flex;gap:7px;margin-top:9px}
+.newsizes{margin-top:8px;justify-content:center}
+.pencur{display:flex;align-items:center;gap:10px;margin:14px 0 2px}
+.pensw{width:46px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.14);flex:none}
+.pensw.none,.swatches button.none{background:repeating-conic-gradient(#3a414b 0 25%, #262b32 0 50%) 50%/10px 10px !important;color:var(--ink-soft)}
+.pencode{font:600 15px var(--mono)}
+.drawlbl{margin:10px 0 0;font-size:12px;color:var(--ink-soft)}
+#drawtools button[data-on="1"],#drawopts button[data-on="1"]{background:var(--accent-tint);color:var(--ink)}
+#drawopts button:disabled,#selacts button:disabled{opacity:.4;cursor:default}
+#blendmodes button[data-on="1"],#selmodes button[data-on="1"]{background:var(--accent-tint);color:var(--ink)}
+#selacts button{font-size:13px}
 .importask{margin-top:12px;padding:12px 14px;background:var(--surface-2);border-radius:var(--r-m)}
 .importhead{margin:0 0 4px;font-size:13.5px;font-weight:600}
 .importopt{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer;font-size:13.5px}
@@ -778,7 +788,7 @@ footer p{margin:0 0 7px}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-board" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-color" viewBox="0 0 24 24"><path d="M12 2.8c3.8 4.6 6.4 8.1 6.4 11.4a6.4 6.4 0 0 1-12.8 0c0-3.3 2.6-6.8 6.4-11.4z"/><path d="M8.9 14.6a3.2 3.2 0 0 0 2.6 3"/></symbol><symbol id="i-sheet" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><rect x="6" y="6" width="3.6" height="3.6" rx=".8" fill="currentColor" stroke="none"/></symbol><symbol id="i-pattern" viewBox="0 0 24 24"><path d="M4 7.5h9.5M18.5 7.5H20M4 16.5h3.5M12.5 16.5H20"/><circle cx="16" cy="7.5" r="2.5"/><circle cx="10" cy="16.5" r="2.5"/></symbol><symbol id="i-background" viewBox="0 0 24 24"><g transform="rotate(-45 12 11)"><rect x="4.5" y="7.5" width="15" height="7" rx="2"/><path d="M10 7.5v7"/></g><path d="M5 20.5h14"/></symbol><symbol id="i-beads" viewBox="0 0 24 24"><circle cx="5.8" cy="5.5" r="1.7"/><circle cx="5.8" cy="12" r="1.7"/><circle cx="5.8" cy="18.5" r="1.7"/><path d="M10.5 5.5h9.5M10.5 12h9.5M10.5 18.5h6"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M4.5 8.5h13M14 5l3.5 3.5L14 12M19.5 15.5h-13M10 12l-3.5 3.5L10 19"/></symbol><symbol id="i-library" viewBox="0 0 24 24"><rect x="7.5" y="3.5" width="13" height="13" rx="2.5"/><path d="M16.5 20.5h-9a4 4 0 0 1-4-4v-9"/><circle cx="12" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.1" fill="currentColor" stroke="none"/></symbol><symbol id="i-export" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M12 10.8v6.2M9.4 14.5L12 17l2.6-2.5"/></symbol><symbol id="i-preview" viewBox="0 0 24 24"><circle cx="7.75" cy="7.75" r="3.4"/><circle cx="16.25" cy="7.75" r="3.4"/><circle cx="7.75" cy="16.25" r="3.4"/><circle cx="16.25" cy="16.25" r="3.4"/></symbol><symbol id="i-codes" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><path d="M6.3 7.9h2.9M14.8 7.9h2.9M6.3 16.1h2.9M14.8 16.1h2.9"/></symbol></defs></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="i-board" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1.15" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.15" fill="currentColor" stroke="none"/></symbol><symbol id="i-color" viewBox="0 0 24 24"><path d="M12 2.8c3.8 4.6 6.4 8.1 6.4 11.4a6.4 6.4 0 0 1-12.8 0c0-3.3 2.6-6.8 6.4-11.4z"/><path d="M8.9 14.6a3.2 3.2 0 0 0 2.6 3"/></symbol><symbol id="i-sheet" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><rect x="6" y="6" width="3.6" height="3.6" rx=".8" fill="currentColor" stroke="none"/></symbol><symbol id="i-pattern" viewBox="0 0 24 24"><path d="M4 7.5h9.5M18.5 7.5H20M4 16.5h3.5M12.5 16.5H20"/><circle cx="16" cy="7.5" r="2.5"/><circle cx="10" cy="16.5" r="2.5"/></symbol><symbol id="i-background" viewBox="0 0 24 24"><g transform="rotate(-45 12 11)"><rect x="4.5" y="7.5" width="15" height="7" rx="2"/><path d="M10 7.5v7"/></g><path d="M5 20.5h14"/></symbol><symbol id="i-beads" viewBox="0 0 24 24"><circle cx="5.8" cy="5.5" r="1.7"/><circle cx="5.8" cy="12" r="1.7"/><circle cx="5.8" cy="18.5" r="1.7"/><path d="M10.5 5.5h9.5M10.5 12h9.5M10.5 18.5h6"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M4.5 8.5h13M14 5l3.5 3.5L14 12M19.5 15.5h-13M10 12l-3.5 3.5L10 19"/></symbol><symbol id="i-library" viewBox="0 0 24 24"><rect x="7.5" y="3.5" width="13" height="13" rx="2.5"/><path d="M16.5 20.5h-9a4 4 0 0 1-4-4v-9"/><circle cx="12" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1.1" fill="currentColor" stroke="none"/></symbol><symbol id="i-export" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M12 10.8v6.2M9.4 14.5L12 17l2.6-2.5"/></symbol><symbol id="i-preview" viewBox="0 0 24 24"><circle cx="7.75" cy="7.75" r="3.4"/><circle cx="16.25" cy="7.75" r="3.4"/><circle cx="7.75" cy="16.25" r="3.4"/><circle cx="16.25" cy="16.25" r="3.4"/></symbol><symbol id="i-codes" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M12 3.5v17M3.5 12h17"/><path d="M6.3 7.9h2.9M14.8 7.9h2.9M6.3 16.1h2.9M14.8 16.1h2.9"/></symbol><symbol id="i-draw" viewBox="0 0 24 24"><path d="M15.2 4.8l4 4L9 18.8H5v-4z"/><path d="M13 7l4 4"/></symbol></defs></svg>
 <div class="app" id="app">
 
   <header class="mast">
@@ -829,8 +839,40 @@ footer p{margin:0 0 7px}
       <label class="pick" for="file">Choose an image</label>
       <input type="file" id="file" accept="image/*">
       <button class="pick secondary" id="sample">Try a sample image</button>
+      <button class="pick secondary" id="newdesign" type="button">New blank design</button>
+      <div class="quick newsizes" id="newsizes" hidden></div>
       <p class="tagline">Photos and pixel art into 2.6&nbsp;mm MARD bead patterns</p>
     </div>
+
+    <details class="panel sec" data-sec="draw" id="drawpanel" hidden open>
+      <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-draw"/></svg><h2>Draw</h2></summary>
+      <div class="quick" id="drawtools"></div>
+      <div class="quick" id="drawopts" style="margin-top:8px"></div>
+      <div class="pencur"><span class="pensw" id="pensw"></span><span class="pencode" id="pencode"></span></div>
+      <p class="drawlbl">Recent</p>
+      <div class="swatches" id="penrecent"></div>
+      <p class="drawlbl" id="penusedlbl">In this design</p>
+      <div class="swatches" id="penused"></div>
+      <div class="row"><input type="checkbox" id="penall"><label for="penall">Show all colors</label></div>
+      <div class="swatches full" id="penfull" hidden></div>
+      <div class="ctl" id="sizectl" style="margin-top:12px">
+        <label for="pensize">Brush size <span class="val" id="pensizev">1</span></label>
+        <input type="range" id="pensize" min="1" max="8" value="1" step="1">
+      </div>
+      <div class="ctl" id="opctl">
+        <label for="penop">Opacity <span class="val" id="penopv">100%</span></label>
+        <input type="range" id="penop" min="10" max="100" value="100" step="5">
+        <div class="quick" id="blendmodes" style="margin-top:8px" hidden></div>
+        <span class="note" id="blendnote" hidden></span>
+      </div>
+      <div id="selrow" hidden style="margin-top:12px">
+        <div class="quick" id="selmodes"></div>
+        <div class="row"><input type="checkbox" id="seladd"><label for="seladd">Add to selection</label></div>
+      </div>
+      <div class="quick" id="selacts" style="margin-top:8px" hidden></div>
+      <p class="note-top" id="drawnote" style="margin:12px 0 0"></p>
+      <button class="pick secondary" id="backtoimage" type="button" hidden>Back to image settings</button>
+    </details>
 
     <details class="panel sec" data-sec="board" id="boardpanel" hidden open>
       <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-board"/></svg><h2>Board layout</h2></summary>
@@ -854,7 +896,7 @@ footer p{margin:0 0 7px}
         <span class="pbnote">down</span>
       </div>
       <p class="note-top" id="boardsize-note" style="margin:0 0 10px"></p>
-      <p class="note-top">Tap <b>+ Board</b> on a design in the library to drop it on the board, then drag it. One empty peg is always kept between designs.</p>
+      <p class="note-top">Tap <b>+ Board</b> on a design in the library to drop it on the board, then drag it. Designs keep one empty peg between them so they don't fuse together, unless you turn that off below.</p>
       <div class="quick" id="boardtools">
         <button type="button" id="bt-rot">Rotate</button>
         <button type="button" id="bt-fliph">Flip ↔</button>
@@ -869,6 +911,11 @@ footer p{margin:0 0 7px}
         <input type="checkbox" id="boardcodes">
         <label for="boardcodes">Show codes on beads</label>
       </div>
+      <div class="row">
+        <input type="checkbox" id="boardgap" checked>
+        <label for="boardgap">Keep a one-peg gap between designs</label>
+      </div>
+      <p class="note-top" id="gapnote" style="margin:4px 0 0" hidden>Designs can touch and overlap. The one you touched last is on top.</p>
       <dl class="stats">
         <div><dt>On board</dt><dd id="b-items">0</dd></div>
         <div><dt>Beads</dt><dd id="b-beads">0</dd></div>
@@ -1178,6 +1225,7 @@ function assignDistinct(keys){
 }
 
 function buildGrid(){
+  if (design) { buildFromDesign(); return; }
   if (!srcImage) return;
   const W = +$("w").value;
   const linked = $("link").checked;
@@ -1347,6 +1395,13 @@ function closeSwap(){
 
 function chooseSwap(j){
   if (swapFrom === null) return;
+  if (design) {
+    if (swapFrom !== j) {
+      pushUndo();
+      for (let p = 0; p < design.cells.length; p++) if (design.cells[p] === swapFrom) design.cells[p] = j;
+    }
+    closeSwap(); designChanged(); return;
+  }
   /* Record against the original palette entry, so the swap survives a
      re-quantize when width or simplify changes. */
   for (const [from, to] of swaps) if (to === swapFrom) swaps.set(from, j);
@@ -1467,6 +1522,507 @@ function renderBgList(){
   $("bgmsg").textContent = erased.size ? erased.size + " beads erased by hand" : "";
 }
 
+/* ============================ designing ============================
+   A pattern has two stages. Converting: built from an image, sliders live.
+   Designing: a grid of bead codes edited directly, plus a mask layer of
+   pegs that must stay empty. Painting on a converted pattern moves it into
+   designing; blank and library designs start there. Everything downstream
+   reads the final grid, so codes, counts, PDF, library and board all work. */
+let design = null;          // { w, h, cells: Int32Array, mask: Uint8Array, fromImage }
+let undoStack = [], redoStack = [];
+const pen = { tool: null, color: null, mirrorX: false, mirrorY: false, recent: [],
+              size: 1, opacity: 100, blend: "mix", selMode: "box", selAdd: false };
+let stroke = null;
+
+function buildFromDesign(){
+  if (!design.sel || design.sel.length !== design.w * design.h) design.sel = new Uint8Array(design.w * design.h);
+  let n = 0; for (const v of design.sel) n += v; design.selN = n;
+  gw = design.w; gh = design.h;
+  grid = design.cells.slice();
+  for (let p = 0; p < grid.length; p++) if (design.mask[p]) grid[p] = EMPTY;
+  const seen = new Set(); for (const v of grid) if (v !== EMPTY) seen.add(v);
+  srcColours = seen.size;
+  removedCount = 0;
+  recount();
+}
+
+function snapshot(){ return { w: design.w, h: design.h, cells: design.cells.slice(), mask: design.mask.slice(),
+  sel: design.sel ? design.sel.slice() : new Uint8Array(design.w * design.h) }; }
+function restoreSnap(sn){ design.w = sn.w; design.h = sn.h; design.cells = sn.cells.slice(); design.mask = sn.mask.slice(); design.sel = sn.sel.slice(); }
+function pushUndo(){
+  undoStack.push(snapshot());
+  if (undoStack.length > 60) undoStack.shift();
+  redoStack = [];
+}
+/* A stroke or fill that changed nothing shouldn't cost an Undo press. */
+function dropIfUnchanged(){
+  const top = undoStack[undoStack.length - 1];
+  if (!top || !design || top.w !== design.w || top.h !== design.h) return;
+  for (let p = 0; p < design.cells.length; p++)
+    if (top.cells[p] !== design.cells[p] || top.mask[p] !== design.mask[p]) return;
+  undoStack.pop();
+}
+function undo(){ if (!design || !undoStack.length) return; redoStack.push(snapshot()); restoreSnap(undoStack.pop()); designChanged(); }
+function redo(){ if (!design || !redoStack.length) return; undoStack.push(snapshot()); restoreSnap(redoStack.pop()); designChanged(); }
+
+/* Step a converted pattern into designing. The conversion is kept, so
+   "Back to image settings" can return to it. */
+function enterDesign(){
+  if (design || !grid) return;
+  design = { w: gw, h: gh, cells: grid.slice(), mask: new Uint8Array(gw * gh), fromImage: !!srcImage };
+  undoStack = []; redoStack = [];
+  if (!pen.tool) pen.tool = "pencil";
+  if (pen.color === null) pen.color = CODES.indexOf("H7");
+  if (design.fromImage) say("Now painting beads directly. The conversion settings are set aside \u2014 Back to image settings returns to them.");
+  syncDrawUI();
+}
+
+function newBlankDesign(w, h){
+  closeSwap && swapFrom !== null && closeSwap();
+  srcRaw = srcSmall = srcImage = null; crop = null; srcAlpha = null; alphaOf = null;
+  swaps.clear(); bgColours.clear(); erased.clear();
+  design = { w, h, cells: new Int32Array(w * h).fill(EMPTY), mask: new Uint8Array(w * h), fromImage: false };
+  undoStack = []; redoStack = [];
+  editingLib = null; renderEditing && renderEditing();
+  pen.tool = "pencil";
+  if (pen.color === null) pen.color = CODES.indexOf("H7");
+  $("sheetpanel").hidden = true; $("tab-sheet").hidden = true; $("assheet").checked = false;
+  say(`New ${w} \u00D7 ${h} design.`);
+  regenerate(); setView("preview"); syncDrawUI();
+}
+
+function leaveDesign(){
+  if (!design) return;
+  design = null; undoStack = []; redoStack = []; pen.tool = null; stroke = null;
+  clearAutosave();
+}
+
+function backToImage(){
+  if (!design || !design.fromImage || !srcImage) return;
+  design = null; undoStack = []; redoStack = []; pen.tool = null; stroke = null;
+  clearAutosave();
+  regenerate(); syncDrawUI();
+  say("Back to the image settings.");
+}
+
+let redrawQueued = false;
+function designChanged(){
+  if (redrawQueued) return;
+  redrawQueued = true;
+  requestAnimationFrame(() => { redrawQueued = false; regenerate(); syncDrawUI(); autosave(); });
+}
+
+/* ---------- the Draw panel ---------- */
+const DRAW_TOOLS = [["pencil","Pencil"],["eraser","Eraser"],["fill","Fill"],["pick","Pick"],["select","Select"],["move","Move"],["mask","Mask"]];
+
+function addRecent(i){
+  if (i === null || i === EMPTY) return;
+  pen.recent = [i, ...pen.recent.filter(x => x !== i)].slice(0, 10);
+}
+function setPenColor(i){
+  pen.color = i;
+  if (pen.tool !== "fill") pen.tool = "pencil";
+  addRecent(i);
+  syncDrawUI();
+}
+function emptyChip(){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "none"; b.textContent = "none"; b.title = "No bead";
+  b.addEventListener("click", () => setPenColor(EMPTY));
+  return b;
+}
+
+let drawUIBuilt = false;
+function buildDrawUI(){
+  if (drawUIBuilt) return; drawUIBuilt = true;
+  for (const [id, label] of DRAW_TOOLS) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.tool = id;
+    b.addEventListener("click", () => { pen.tool = pen.tool === id ? null : id;
+      if (pen.tool && pen.color === null) pen.color = CODES.indexOf("H7"); syncDrawUI(); });
+    $("drawtools").append(b);
+  }
+  const opt = (id, label, fn) => { const b = document.createElement("button"); b.type = "button"; b.id = id; b.textContent = label;
+    b.addEventListener("click", fn); $("drawopts").append(b); return b; };
+  opt("pm-x", "Mirror \u2194", () => { pen.mirrorX = !pen.mirrorX; syncDrawUI(); });
+  opt("pm-y", "Mirror \u2195", () => { pen.mirrorY = !pen.mirrorY; syncDrawUI(); });
+  opt("pu-undo", "Undo", undo);
+  opt("pu-redo", "Redo", redo);
+  const clr = opt("pu-clear", "Clear", () => {
+    if (!design) return;
+    if (clr.dataset.armed) {
+      clearTimeout(+clr.dataset.armed); delete clr.dataset.armed; clr.textContent = "Clear";
+      pushUndo(); design.cells.fill(EMPTY); designChanged();
+    } else {
+      clr.textContent = "Tap again";
+      clr.dataset.armed = String(setTimeout(() => { delete clr.dataset.armed; clr.textContent = "Clear"; }, 3000));
+    }
+  });
+  const full = $("penfull");
+  for (let i = 0; i < CODES.length; i++) full.append(swatchButton(i, setPenColor));
+  $("pensize").addEventListener("input", () => { pen.size = +$("pensize").value; syncDrawUI(); });
+  $("penop").addEventListener("input", () => { pen.opacity = +$("penop").value; syncDrawUI(); });
+  const seg = (box, list, key) => { for (const [id, label] of list) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.val = id;
+    b.addEventListener("click", () => { pen[key] = id; syncDrawUI(); }); $(box).append(b); } };
+  seg("blendmodes", [["mix","Mix"],["dither","Dither"]], "blend");
+  seg("selmodes", [["box","Box"],["brush","Brush"],["color","Same color"]], "selMode");
+  $("seladd").addEventListener("change", () => { pen.selAdd = $("seladd").checked; });
+  for (const [id, label] of [["all","All"],["none","None"],["invert","Invert"],["fill","Fill"],["erase","Erase"],
+                             ["mask","Mask"],["unmask","Unmask"],["flipx","Flip \u2194"],["flipy","Flip \u2195"],["rot","Rotate"],["dup","Duplicate"]]) {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.dataset.act = id;
+    b.addEventListener("click", () => selAction(id)); $("selacts").append(b);
+  }
+  $("penall").addEventListener("change", () => { full.hidden = !$("penall").checked; });
+  $("backtoimage").addEventListener("click", backToImage);
+}
+
+function syncDrawUI(){
+  buildDrawUI();
+  const designing = !!design;
+  $("drawpanel").hidden = !(grid && (view === "preview" || view === "chart"));
+  for (const b of $("drawtools").children) b.dataset.on = b.dataset.tool === pen.tool ? "1" : "0";
+  $("pm-x").dataset.on = pen.mirrorX ? "1" : "0";
+  $("pm-y").dataset.on = pen.mirrorY ? "1" : "0";
+  $("pu-undo").disabled = !designing || !undoStack.length;
+  $("pu-redo").disabled = !designing || !redoStack.length;
+  $("pu-clear").disabled = !designing;
+
+  const none = pen.color === EMPTY || pen.color === null;
+  $("pensw").className = "pensw" + (none ? " none" : "");
+  $("pensw").style.background = none ? "" : hex(pen.color);
+  $("pencode").textContent = pen.color === null ? "Pick a color" : pen.color === EMPTY ? "No bead" : CODES[pen.color];
+
+  const rec = $("penrecent"); rec.innerHTML = ""; rec.append(emptyChip());
+  for (const i of pen.recent) rec.append(swatchButton(i, setPenColor));
+  const used = $("penused"); used.innerHTML = "";
+  for (const [i] of counts) used.append(swatchButton(i, setPenColor));
+  $("penusedlbl").hidden = used.hidden = !counts.length;
+
+  // in designing, the conversion controls step aside
+  const patternSec = document.querySelector('details.sec[data-sec="pattern"]');
+  if (patternSec) patternSec.hidden = designing;
+  if (designing) { $("bgpanel").hidden = true; $("sheetpanel").hidden = true; $("tab-sheet").hidden = true; }
+  else if (srcImage) $("sheetpanel").hidden = false;
+  $("backtoimage").hidden = !(designing && design.fromImage);
+
+  // brush and selection controls follow the tool
+  const t = pen.tool, selN = designing ? (design.selN || 0) : 0;
+  $("sizectl").hidden = !(t === "pencil" || t === "eraser" || t === "mask" || (t === "select" && pen.selMode === "brush"));
+  $("pensizev").textContent = pen.size; $("pensize").value = pen.size;
+  $("opctl").hidden = !(t === "pencil" || t === "fill" || (t === "select" && selN));
+  $("penopv").textContent = pen.opacity + "%"; $("penop").value = pen.opacity;
+  $("blendmodes").hidden = $("blendnote").hidden = pen.opacity >= 100;
+  for (const b of $("blendmodes").children) b.dataset.on = b.dataset.val === pen.blend ? "1" : "0";
+  $("blendnote").textContent = pen.blend === "mix"
+    ? "Blends the paint with the bead underneath and uses the nearest MARD color."
+    : "Places full-color beads on an even scatter of pegs.";
+  $("selrow").hidden = t !== "select";
+  for (const b of $("selmodes").children) b.dataset.on = b.dataset.val === pen.selMode ? "1" : "0";
+  $("seladd").checked = pen.selAdd;
+  $("selacts").hidden = !(t === "select" || t === "move" || selN);
+  for (const b of $("selacts").children)
+    b.disabled = !designing || (!["all","none","invert"].includes(b.dataset.act) && !selN) || (b.dataset.act === "none" && !selN);
+
+  $("drawnote").textContent = !designing
+    ? "Pick a tool and paint on the pattern. Your first stroke switches it to editing beads directly."
+    : t === "select" ? "Drag a box, brush over beads, or tap a color region. While beads are selected, painting stays inside them."
+    : t === "move" ? (selN ? "Drag to move the selected beads." : "Drag to move the whole design. Anything pushed off the edge is cut off.")
+    : "One finger paints, two fingers zoom and pan. Masked pegs always stay empty, and fill stops at them.";
+}
+
+/* ---------- painting ---------- */
+const BAYER4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+let pass = null;     // the stroke or fill in progress: what each peg held before it, and which it has touched
+
+function nearestLab(L, A, B){
+  let bd = Infinity, best = 0;
+  for (let i = 0; i < LAB.length; i++) {
+    const dl = L-LAB[i][0], da = A-LAB[i][1], db = B-LAB[i][2], d = dl*dl + da*da + db*db;
+    if (d < bd) { bd = d; best = i; }
+  }
+  return best;
+}
+/* Brush footprints: 1 = one peg, 2 = a 2x2 block, larger sizes round off. */
+const brushCache = {};
+function brushOffsets(n){
+  if (brushCache[n]) return brushCache[n];
+  const c = (n - 1) / 2, o = Math.floor(c), lim = (n / 2) * (n / 2) + 0.25, out = [];
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++)
+    if ((i - c) * (i - c) + (j - c) * (j - c) <= lim) out.push([i - o, j - o]);
+  return (brushCache[n] = out);
+}
+function cellFromEvent(e){
+  const r = $("preview").getBoundingClientRect();
+  return { x: Math.floor((e.clientX - r.left) / r.width * gw), y: Math.floor((e.clientY - r.top) / r.height * gh) };
+}
+function mirrored(x, y){
+  const W = design.w, H = design.h, pts = [[x, y, 1, 1]];
+  if (pen.mirrorX) pts.push([W - 1 - x, y, -1, 1]);
+  if (pen.mirrorY) pts.push([x, H - 1 - y, 1, -1]);
+  if (pen.mirrorX && pen.mirrorY) pts.push([W - 1 - x, H - 1 - y, -1, -1]);
+  return pts;
+}
+/* With a selection, painting stays inside it. */
+function outsideSel(p){ return design.selN > 0 && !design.sel[p]; }
+
+function beginPass(){ pass = { base: design.cells.slice(), done: new Uint8Array(design.cells.length) }; }
+/* What a peg becomes under the paint. At full opacity, the paint color.
+   Below that, Mix blends the paint into the bead already there and snaps
+   to the nearest MARD color; Dither puts full beads on an even scatter of
+   pegs. Each peg takes paint once per stroke, so going back and forth
+   doesn't pile up, but a second stroke builds on the first. */
+function paintValue(p){
+  const c = pen.color;
+  if (c === EMPTY || pen.opacity >= 100) return c;
+  const base = pass.base[p], a = pen.opacity / 100;
+  if (pen.blend === "dither") { const x = p % design.w, y = (p / design.w) | 0; return BAYER4[y & 3][x & 3] < a * 16 ? c : base; }
+  if (base === EMPTY) return c;
+  const P = LAB[c], Q = LAB[base];
+  return nearestLab(Q[0] + (P[0]-Q[0])*a, Q[1] + (P[1]-Q[1])*a, Q[2] + (P[2]-Q[2])*a);
+}
+function putPaint(p){
+  if (pass.done[p]) return;
+  pass.done[p] = 1;
+  design.cells[p] = paintValue(p);
+}
+function paintCell(x, y){
+  const W = design.w, H = design.h, offs = brushOffsets(pen.size);
+  for (const [mx, my, fx, fy] of mirrored(x, y))
+    for (const [ox, oy] of offs) {
+      const px = mx + ox*fx, py = my + oy*fy;
+      if (px < 0 || py < 0 || px >= W || py >= H) continue;
+      const p = py * W + px;
+      if (pen.tool === "select") { design.sel[p] = stroke.to; continue; }
+      if (outsideSel(p)) continue;
+      if (pen.tool === "mask") { design.mask[p] = stroke.to; continue; }
+      if (design.mask[p]) continue;                 // the stencil: masked pegs can't be painted
+      if (pen.tool === "eraser") design.cells[p] = EMPTY; else putPaint(p);
+    }
+}
+/* Fill every cell between two touch samples, so a fast swipe draws a
+   continuous line instead of scattered beads. */
+function lineCells(x0, y0, x1, y1, fn){
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy, guard = 0;
+  while (guard++ < 4096) {
+    fn(x0, y0);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+/* Flood a same-color region. Masked pegs are walls, and so is the edge of
+   the selection when there is one. */
+function floodFill(x, y){
+  const W = design.w, H = design.h;
+  for (const [sx, sy] of mirrored(x, y)) {
+    if (sx < 0 || sy < 0 || sx >= W || sy >= H) continue;
+    const s0 = sy * W + sx;
+    if (design.mask[s0] || outsideSel(s0)) continue;
+    const target = pass.base[s0];
+    if (target === pen.color && pen.opacity >= 100) continue;
+    const seen = new Uint8Array(W * H), st = [s0]; seen[s0] = 1;
+    while (st.length) {
+      const q = st.pop(); putPaint(q);
+      const qx = q % W, qy = (q / W) | 0;
+      for (const [nx, ny] of [[qx-1,qy],[qx+1,qy],[qx,qy-1],[qx,qy+1]]) {
+        if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        const r = ny * W + nx;
+        if (seen[r] || design.mask[r] || outsideSel(r) || pass.base[r] !== target) continue;
+        seen[r] = 1; st.push(r);
+      }
+    }
+  }
+}
+
+/* ---------- selecting ---------- */
+function regionAtDesign(x, y){
+  const W = design.w, H = design.h, t = grid[y*W + x], out = new Uint8Array(W*H), st = [y*W + x];
+  out[y*W + x] = 1;
+  while (st.length) {
+    const q = st.pop(), qx = q % W, qy = (q / W) | 0;
+    for (const [nx, ny] of [[qx-1,qy],[qx+1,qy],[qx,qy-1],[qx,qy+1]]) {
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+      const r = ny*W + nx;
+      if (out[r] || grid[r] !== t) continue;
+      out[r] = 1; st.push(r);
+    }
+  }
+  return out;
+}
+function boxSelect(x, y){
+  const W = design.w, a = stroke.start;
+  const sel = pen.selAdd ? stroke.selBefore.slice() : new Uint8Array(W * design.h);
+  for (let yy = Math.min(a.y, y); yy <= Math.max(a.y, y); yy++)
+    for (let xx = Math.min(a.x, x); xx <= Math.max(a.x, x); xx++) sel[yy*W + xx] = 1;
+  design.sel = sel;
+}
+function selBounds(){
+  const W = design.w, H = design.h;
+  let x0 = W, x1 = -1, y0 = H, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++)
+    if (design.sel[y*W + x]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return x1 < 0 ? null : { x0, x1, y0, y1, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+/* Move the selected pegs (beads and mask together) somewhere else.
+   keep = leave the originals in place (Duplicate). */
+function relocate(from, map, keep){
+  const W = design.w, H = design.h, sel = new Uint8Array(W*H);
+  const cells = from.cells.slice(), mask = from.mask.slice();
+  const moving = p => from.useAll ? (from.cells[p] !== EMPTY || from.mask[p]) : from.sel[p];
+  if (!keep) for (let p = 0; p < W*H; p++) if (moving(p)) { cells[p] = EMPTY; mask[p] = 0; }
+  for (let p = 0; p < W*H; p++) {
+    if (!moving(p)) continue;
+    const [nx, ny] = map(p % W, (p / W) | 0);
+    if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;   // pushed off the canvas
+    const q = ny*W + nx;
+    cells[q] = from.cells[p]; mask[q] = from.mask[p]; sel[q] = 1;
+  }
+  design.cells = cells; design.mask = mask;
+  design.sel = from.useAll ? from.sel.slice() : sel;
+}
+function selAction(kind){
+  if (!design) return;
+  const S = design.sel, N = S.length;
+  if (kind === "all")    { S.fill(1); return designChanged(); }
+  if (kind === "none")   { S.fill(0); return designChanged(); }
+  if (kind === "invert") { for (let p = 0; p < N; p++) S[p] ^= 1; return designChanged(); }
+  if (!design.selN) return;
+  pushUndo();
+  if (kind === "fill") { beginPass(); for (let p = 0; p < N; p++) if (S[p] && !design.mask[p]) putPaint(p); addRecent(pen.color); }
+  if (kind === "erase")  for (let p = 0; p < N; p++) if (S[p] && !design.mask[p]) design.cells[p] = EMPTY;
+  if (kind === "mask")   for (let p = 0; p < N; p++) if (S[p]) design.mask[p] = 1;
+  if (kind === "unmask") for (let p = 0; p < N; p++) if (S[p]) design.mask[p] = 0;
+  const b = selBounds(), from = snapshot();
+  if (kind === "flipx") relocate(from, (x, y) => [b.x0 + b.x1 - x, y]);
+  if (kind === "flipy") relocate(from, (x, y) => [x, b.y0 + b.y1 - y]);
+  if (kind === "rot") {
+    const nx0 = Math.round(b.x0 + (b.w - b.h) / 2), ny0 = Math.round(b.y0 + (b.h - b.w) / 2);
+    relocate(from, (x, y) => [nx0 + (b.h - 1 - (y - b.y0)), ny0 + (x - b.x0)]);
+  }
+  if (kind === "dup") {
+    let dx = 2, dy = 2;
+    if (b.x1 + b.w + 1 < design.w) { dx = b.w + 1; dy = 0; }
+    else if (b.y1 + b.h + 1 < design.h) { dx = 0; dy = b.h + 1; }
+    relocate(from, (x, y) => [x + dx, y + dy], true);
+    pen.tool = "move";
+  }
+  dropIfUnchanged();
+  designChanged();
+}
+
+function cancelStroke(){
+  if (!stroke) return;
+  const st = stroke; stroke = null;
+  if (st.kind === "select") design.sel = st.selBefore;
+  else if (undoStack.length) restoreSnap(undoStack.pop());
+  designChanged();
+}
+
+(function(){
+  const cv = $("preview");
+  cv.addEventListener("pointerdown", e => {
+    if (!grid || view !== "preview" || !pen.tool) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const { x, y } = cellFromEvent(e);
+    if (x < 0 || y < 0 || x >= gw || y >= gh) return;
+    if (!design) { enterDesign(); buildFromDesign(); }
+    const p = y * design.w + x;
+    if (pen.tool === "pick") {
+      pen.color = design.mask[p] ? EMPTY : design.cells[p];
+      addRecent(pen.color); pen.tool = "pencil"; syncDrawUI(); return;
+    }
+    if (pen.tool === "fill") { pushUndo(); beginPass(); floodFill(x, y); dropIfUnchanged(); addRecent(pen.color); designChanged(); return; }
+    if (pen.tool === "select" && pen.selMode === "color") {
+      const r = regionAtDesign(x, y);
+      if (!pen.selAdd) design.sel.fill(0);
+      for (let q = 0; q < r.length; q++) if (r[q]) design.sel[q] = 1;
+      designChanged(); return;
+    }
+    try { cv.setPointerCapture(e.pointerId); } catch(_) {}
+    if (pen.tool === "select") {
+      stroke = { id: e.pointerId, kind: "select", start: { x, y }, last: { x, y }, selBefore: design.sel.slice(), to: design.sel[p] ? 0 : 1 };
+      if (pen.selMode === "box") boxSelect(x, y); else paintCell(x, y);
+      designChanged(); return;
+    }
+    if (pen.tool === "move") {
+      pushUndo();
+      const from = snapshot(); from.useAll = !design.selN;
+      stroke = { id: e.pointerId, kind: "move", start: { x, y }, last: { x, y }, from };
+      return;
+    }
+    pushUndo(); beginPass();
+    stroke = { id: e.pointerId, kind: "paint", last: { x, y }, to: design.mask[p] ? 0 : 1 };
+    paintCell(x, y);
+    if (pen.tool === "pencil") addRecent(pen.color);
+    designChanged();
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!stroke || e.pointerId !== stroke.id) return;
+    const c = cellFromEvent(e);
+    const x = Math.max(0, Math.min(design.w - 1, c.x)), y = Math.max(0, Math.min(design.h - 1, c.y));
+    if (stroke.kind === "move") {
+      // the move follows the finger even past the edge; what's pushed off is cut on release
+      if (c.x === stroke.last.x && c.y === stroke.last.y) return;
+      const dx = c.x - stroke.start.x, dy = c.y - stroke.start.y;
+      relocate(stroke.from, (px, py) => [px + dx, py + dy]);
+      stroke.last = { x: c.x, y: c.y };
+      designChanged(); return;
+    }
+    if (x === stroke.last.x && y === stroke.last.y) return;
+    if (stroke.kind === "select" && pen.selMode === "box") boxSelect(x, y);
+    else lineCells(stroke.last.x, stroke.last.y, x, y, paintCell);
+    stroke.last = { x, y };
+    designChanged();
+  });
+  const end = e => {
+    if (!stroke || e.pointerId !== stroke.id) return;
+    const kind = stroke.kind; stroke = null;
+    if (kind !== "select") dropIfUnchanged();
+    designChanged();
+  };
+  cv.addEventListener("pointerup", end);
+  cv.addEventListener("pointercancel", end);
+  // keyboard on a computer: undo/redo, Escape deselects, Delete erases the selection
+  document.addEventListener("keydown", e => {
+    if (!design) return;
+    const t = document.activeElement; if (t && /^(INPUT|TEXTAREA)$/.test(t.tagName) && t.type !== "range" && t.type !== "checkbox") return;
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+    if (e.key === "Escape" && design.selN) { selAction("none"); return; }
+    if ((e.key === "Delete" || e.key === "Backspace") && design.selN) { e.preventDefault(); selAction("erase"); }
+  });
+})();
+
+/* ---------- autosave: a drawing in progress survives the app being closed ---------- */
+const DRAFT_KEY = "beadboard:draft";
+let autosaveTimer = 0;
+function autosave(){
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    if (!design) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ w: design.w, h: design.h,
+        rle: encodeCells(design.cells), mrle: encodeCells(design.mask), lib: editingLib || null }));
+    } catch(e) {}
+  }, 400);
+}
+function clearAutosave(){ try { localStorage.removeItem(DRAFT_KEY); } catch(e) {} }
+function restoreDraft(){
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+    if (!d || !d.w || !d.h || !d.rle) return false;
+    design = { w: d.w, h: d.h, cells: decodeCells(d.rle, d.w * d.h),
+               mask: Uint8Array.from(decodeCells(d.mrle || `${d.w*d.h}:0`, d.w * d.h)), fromImage: false };
+    editingLib = d.lib && library.some(x => x.id === d.lib) ? d.lib : null;
+    pen.tool = "pencil";
+    if (pen.color === null) pen.color = CODES.indexOf("H7");
+    regenerate(); setView("preview"); syncDrawUI(); renderEditing();
+    say("Restored the design you were working on.");
+    return true;
+  } catch(e) { return false; }
+}
+
 /* ============================ drawing ============================ */
 function drawPreview(){
   const cv = $("preview");
@@ -1479,10 +2035,25 @@ function drawPreview(){
   ctx.clearRect(0,0,gw*cell,gh*cell);
 
   const beads = $("holes").checked && cell >= 6;
+  const maskInk = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#F0508A";
   for (let y = 0; y < gh; y++) {
     for (let x = 0; x < gw; x++) {
       const i = grid[y*gw+x];
-      if (i === EMPTY) continue;
+      if (i === EMPTY) {
+        // while designing, empty cells are pegs and masked pegs carry a mark
+        if (design) {
+          const cx = x*cell + cell/2, cy = y*cell + cell/2;
+          if (design.mask[y*gw+x]) {
+            ctx.strokeStyle = maskInk; ctx.lineWidth = Math.max(1.2, cell*0.11); ctx.lineCap = "round";
+            const k = cell*0.24;
+            ctx.beginPath(); ctx.moveTo(cx-k, cy-k); ctx.lineTo(cx+k, cy+k); ctx.moveTo(cx+k, cy-k); ctx.lineTo(cx-k, cy+k); ctx.stroke();
+          } else {
+            ctx.fillStyle = "rgba(0,0,0,.26)";
+            ctx.beginPath(); ctx.arc(cx, cy, Math.max(0.8, cell*0.15), 0, 6.2832); ctx.fill();
+          }
+        }
+        continue;
+      }
       const [r,g,b] = RGB[i];
       ctx.fillStyle = `rgb(${r},${g},${b})`;
       if (beads) {
@@ -1501,6 +2072,24 @@ function drawPreview(){
         ctx.fillRect(x*cell, y*cell, cell, cell);
       }
     }
+  }
+
+  if (design && design.selN) {
+    const S = design.sel, W = gw, H = gh, segs = [];
+    ctx.fillStyle = "rgba(255,255,255,.13)";
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!S[y*W + x]) continue;
+      ctx.fillRect(x*cell, y*cell, cell, cell);
+      const X = x*cell, Y = y*cell;
+      if (y === 0 || !S[(y-1)*W + x]) segs.push([X, Y, X + cell, Y]);
+      if (y === H-1 || !S[(y+1)*W + x]) segs.push([X, Y + cell, X + cell, Y + cell]);
+      if (x === 0 || !S[y*W + x - 1]) segs.push([X, Y, X, Y + cell]);
+      if (x === W-1 || !S[y*W + x + 1]) segs.push([X + cell, Y, X + cell, Y + cell]);
+    }
+    const trace = () => { ctx.beginPath(); for (const [a, b, c, d] of segs) { ctx.moveTo(a, b); ctx.lineTo(c, d); } ctx.stroke(); };
+    ctx.setLineDash([]); ctx.strokeStyle = "rgba(0,0,0,.75)"; ctx.lineWidth = 3; trace();
+    ctx.setLineDash([4, 3]); ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; trace();
+    ctx.setLineDash([]);
   }
 
   const bs = boardSize();
@@ -1653,6 +2242,7 @@ function render(){
     li.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSwap(i); } });
     ul.append(li);
   }
+  syncDrawUI();
 }
 
 function regenerate(){ buildGrid(); render(); }
@@ -1663,6 +2253,7 @@ function regenerate(){ buildGrid(); render(); }
    chosen file and for opening a design from the library. */
 function startFromImage(img, opts){
   opts = opts || {};
+  leaveDesign();
     try {
       srcRaw = img;
       srcSmall = shrinkIfHuge(img);
@@ -1897,6 +2488,7 @@ function sampleImage(){
   x.beginPath(); x.moveTo(150,320); x.lineTo(300,185); x.lineTo(420,320); x.fill();
   const img = new Image();
   img.onload = () => {
+    leaveDesign();
     srcRaw = srcSmall = srcImage = img; crop = null; srcAlpha = null; alphaOf = null;
     editingLib = null; renderEditing();
     $("sheetpanel").hidden = true; $("tab-sheet").hidden = true;
@@ -2119,14 +2711,15 @@ function tightBounds(cells, w, h){
 
 function saveCurrentToLibrary(){
   if (!grid) { $("libmsg").textContent = "Make a pattern first."; return; }
-  const t = tightBounds(grid, gw, gh);
+  const t = currentForSave();
   if (!t) { $("libmsg").textContent = "Nothing to save — every bead is removed."; return; }
 
   /* Name comes from the field in the panel. Browser pop-up prompts are
      silently blocked in some embedded viewers, which made saving fail
      without a word. */
   const name = ($("libname").value || "").trim() || ("Design " + (library.length + 1));
-  library.push({ id: "d" + Date.now().toString(36), name, w: t.w, h: t.h, rle: encodeCells(t.cells) });
+  library.push(Object.assign({ id: "d" + Date.now().toString(36), name, w: t.w, h: t.h, rle: encodeCells(t.cells) },
+    t.mask ? { mrle: encodeCells(t.mask) } : {}));
 
   const ok = saveLibrary();
   renderLibrary();
@@ -2141,31 +2734,57 @@ function saveCurrentToLibrary(){
              : `Saved "${name}".`;
 }
 
-function libCells(entry){ return decodeCells(entry.rle, entry.w * entry.h); }
+/* A saved design's beads as they come out: masked pegs empty. */
+function libCells(entry){
+  const c = decodeCells(entry.rle, entry.w * entry.h);
+  if (entry.mrle) { const m = libMask(entry); for (let p = 0; p < c.length; p++) if (m[p]) c[p] = EMPTY; }
+  return c;
+}
+function libMask(entry){
+  return entry.mrle ? Uint8Array.from(decodeCells(entry.mrle, entry.w * entry.h)) : null;
+}
+
+/* What gets saved: the current pattern trimmed to its content. For a
+   design, masked pegs count as content (they're part of its shape) and
+   the beads underneath them are kept, so unmasking later restores them. */
+function currentForSave(){
+  if (!design) { const t = tightBounds(grid, gw, gh); return t ? { w: t.w, h: t.h, cells: t.cells, mask: null } : null; }
+  const W = design.w, H = design.h;
+  let x0 = W, x1 = -1, y0 = H, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const p = y*W + x;
+    if (design.mask[p] || design.cells[p] !== EMPTY) {
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+  }
+  if (x1 < x0) return null;
+  const w = x1 - x0 + 1, h = y1 - y0 + 1, cells = new Int32Array(w*h), mask = new Uint8Array(w*h);
+  let anyMask = false;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const p = (y + y0)*W + (x + x0);
+    cells[y*w + x] = design.cells[p]; mask[y*w + x] = design.mask[p]; if (design.mask[p]) anyMask = true;
+  }
+  return { w, h, cells, mask: anyMask ? mask : null };
+}
 
 /* Open a saved design as the current pattern. It's redrawn one pixel per
    bead in its exact bead colors, then goes through the same loading path
    as any image, so every view and tool works on it unchanged. */
 function openFromLibrary(entry){
-  const cells = libCells(entry);
-  const c = document.createElement("canvas"); c.width = entry.w; c.height = entry.h;
-  const x = c.getContext("2d"); const im = x.createImageData(entry.w, entry.h);
-  for (let p = 0; p < cells.length; p++) {
-    const v = cells[p]; if (v === EMPTY) continue;
-    const [r, g, b] = RGB[v];
-    im.data[p*4] = r; im.data[p*4+1] = g; im.data[p*4+2] = b; im.data[p*4+3] = 255;
-  }
-  x.putImageData(im, 0, 0);
-  const img = new Image();
-  img.onload = () => {
-    startFromImage(img, { isPng: true, noSheet: true });
-    editingLib = entry.id;
-    $("distinct").checked = true; regenerate();
-    say(`Opened \u201C${entry.name}\u201D from the library.`);
-    renderEditing(); renderLibrary();
-    setView("preview");
-  };
-  img.src = c.toDataURL();
+  if (swapFrom !== null) closeSwap();
+  srcRaw = srcSmall = srcImage = null; crop = null; srcAlpha = null; alphaOf = null;
+  swaps.clear(); bgColours.clear(); erased.clear();
+  const m = libMask(entry);
+  design = { w: entry.w, h: entry.h, cells: decodeCells(entry.rle, entry.w * entry.h),
+             mask: m || new Uint8Array(entry.w * entry.h), fromImage: false };
+  undoStack = []; redoStack = [];
+  editingLib = entry.id;
+  if (pen.color === null) pen.color = CODES.indexOf("H7");
+  $("sheetpanel").hidden = true; $("tab-sheet").hidden = true; $("assheet").checked = false;
+  regenerate();
+  say(`Opened \u201C${entry.name}\u201D from the library.`);
+  renderEditing(); renderLibrary();
+  setView("preview"); syncDrawUI(); autosave();
 }
 
 function renderEditing(){
@@ -2183,9 +2802,10 @@ function renderEditing(){
 function saveChangesToLibrary(){
   const entry = editingLib && library.find(d => d.id === editingLib);
   if (!entry || !grid) return;
-  const t = tightBounds(grid, gw, gh);
+  const t = currentForSave();
   if (!t) { $("libmsg").textContent = "Nothing to save — every bead is removed."; return; }
   entry.w = t.w; entry.h = t.h; entry.rle = encodeCells(t.cells);
+  if (t.mask) entry.mrle = encodeCells(t.mask); else delete entry.mrle;
   const ok = saveLibrary();
   let onBoard = 0;
   for (const pl of placed) if (pl.lib === entry.id) { rebuild(pl); onBoard++; }
@@ -2307,15 +2927,19 @@ function boardDims(){
   return { tile, nx: linkX, ny: linkY, W: tile * linkX, H: tile * linkY };
 }
 
+/* Pegs another design's beads may not use: every bead, plus (when the gap
+   rule is on) the ring of pegs around it, so designs never fuse together. */
+let boardGap = true;
 function occupancy(skip){
   const { W, H } = boardDims();
   const occ = new Uint8Array(W*H);
+  const r = boardGap ? 1 : 0;
   placed.forEach((pl, idx) => {
     if (idx === skip) return;
     for (let y = 0; y < pl.h; y++) for (let x = 0; x < pl.w; x++) {
       if (pl.cells[y*pl.w+x] === EMPTY) continue;
       const bx = pl.x + x, by = pl.y + y;
-      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
         const nx = bx+dx, ny = by+dy;
         if (nx >= 0 && ny >= 0 && nx < W && ny < H) occ[ny*W+nx] = 1;
       }
@@ -2327,17 +2951,18 @@ function occupancy(skip){
 function fits(pl, x, y, skip){
   const { W, H } = boardDims();
   if (x < 0 || y < 0 || x + pl.w > W || y + pl.h > H) return false;
+  if (!boardGap) return true;                 // anything goes, overlaps included
   const occ = occupancy(skip);
-  for (let yy = 0; yy < pl.h; yy++) for (let xx = 0; xx < pl.w; xx++) {
-    if (pl.cells[yy*pl.w+xx] === EMPTY) continue;
-    if (occ[(y+yy)*W + (x+xx)]) return false;
-  }
+  for (let yy = 0; yy < pl.h; yy++) for (let xx = 0; xx < pl.w; xx++)
+    if (pl.cells[yy*pl.w + xx] !== EMPTY && occ[(y+yy)*W + (x+xx)]) return false;
   return true;
 }
 
 /* First legal spot, scanning top to bottom, left to right. The occupancy
    map (every bead plus its one-peg halo) is built once, and only the
    design's actual beads are tested, so odd shapes can tuck into gaps. */
+/* New and auto-arranged designs still go where nothing is in the way;
+   with the gap rule off they may touch, but are never dropped on top. */
 function findSpot(pl, skip = -1){
   const { W, H } = boardDims();
   const occ = occupancy(skip);
@@ -2573,6 +3198,7 @@ function placeLibrary(onBoard){
 function setView(v){
   rememberVP();
   view = v;
+  syncDrawUI();
   for (const [t,n] of [["tab-preview","preview"],["tab-chart","chart"],["tab-sheet","sheet"],["tab-board","board"],["tab-colors","colors"]])
     $(t).setAttribute("aria-selected", v === n);
   const patternView = v === "preview" || v === "chart" || v === "sheet";
@@ -3017,7 +3643,8 @@ function hitTest(x, y){
 
 $("boardcv").addEventListener("pointerdown", e => {
   const { x, y } = boardXY(e);
-  const i = hitTest(x, y);
+  let i = hitTest(x, y);
+  if (i >= 0 && i !== placed.length - 1) { placed.push(placed.splice(i, 1)[0]); i = placed.length - 1; }
   selected = i;
   if (i >= 0) {
     const pl = placed[i];
@@ -3118,6 +3745,20 @@ $("bt-pdf").addEventListener("click", async () => {
     } else $("bmsg").textContent = "Saving files isn't available here.";
   } catch(err) { $("bmsg").textContent = "Couldn't build the PDF."; }
 });
+
+/* ---------- the gap rule ---------- */
+const GAP_KEY = "beadboard:gap";
+function setBoardGap(on, quiet){
+  boardGap = on;
+  $("boardgap").checked = on; $("gapnote").hidden = on;
+  try { localStorage.setItem(GAP_KEY, on ? "1" : "0"); } catch(e) {}
+  if (quiet) return;
+  const crowded = on && placed.some((pl, idx) => !fits(pl, pl.x, pl.y, idx));
+  $("bmsg").textContent = crowded ? "Some designs are touching or overlapping. Auto-arrange will space them out." : "";
+  drawBoard();
+}
+$("boardgap").addEventListener("change", () => setBoardGap($("boardgap").checked));
+try { setBoardGap(localStorage.getItem(GAP_KEY) !== "0", true); } catch(e) {}
 
 /* ---------- which pegboard ---------- */
 const BOARD_PRESETS = [[52, 50], [78, 70], [104, 100]];   // pegs, printed grid
@@ -3299,7 +3940,8 @@ function applyImport(){
     const have = new Set(library.map(d => d.id));
     for (const d of pendingImport.designs) {
       if (have.has(d.id)) continue;
-      library.push({ id: d.id, name: String(d.name || "Untitled"), w: +d.w, h: +d.h, rle: String(d.rle) });
+      library.push(Object.assign({ id: d.id, name: String(d.name || "Untitled"), w: +d.w, h: +d.h, rle: String(d.rle) },
+        d.mrle ? { mrle: String(d.mrle) } : {}));
       added++;
     }
     if (added) { saveLibrary(); renderLibrary(); }
@@ -3338,7 +3980,7 @@ document.addEventListener("paste", e => {
 });
 
 $("preview").addEventListener("click", e => {
-  if (!grid || view !== "preview") return;
+  if (!grid || view !== "preview" || pen.tool) return;
   const r = $("preview").getBoundingClientRect();
   const x = Math.floor(((e.clientX - r.left) / r.width) * gw);
   const y = Math.floor(((e.clientY - r.top) / r.height) * gh);
@@ -3510,7 +4152,7 @@ function cancelBoardDrag(){
       panOne = view === "chart" ? { x: e.clientX, y: e.clientY, tx: vp.tx, ty: vp.ty } : null;
     }
     if (ptrs.size === 2) {
-      cancelBoardDrag(); panOne = null;
+      cancelBoardDrag(); cancelStroke(); panOne = null;
       const [a, b] = [...ptrs.values()], r = stage.getBoundingClientRect();
       gest = { d0: dist(a, b) || 1, m0: { x: (a.x + b.x) / 2 - r.left, y: (a.y + b.y) / 2 - r.top },
                s0: vp.s, tx0: vp.tx, ty0: vp.ty };
@@ -3754,6 +4396,22 @@ function squirclePath(w, h, r, smoothing){
 /* Older iOS versions report Home Screen launch here rather than through
    the display-mode media query. */
 if (window.navigator.standalone) document.documentElement.classList.add("ios-standalone");
+
+$("newdesign").addEventListener("click", () => {
+  const box = $("newsizes");
+  box.innerHTML = "";
+  const tile = boardSize() || 52;
+  for (const n of [...new Set([16, 24, 32, 48, tile])]) {
+    const b = document.createElement("button"); b.type = "button";
+    b.textContent = n === tile ? `${n} \u00D7 ${n} \u00B7 one board` : `${n} \u00D7 ${n}`;
+    b.addEventListener("click", () => { box.hidden = true; newBlankDesign(n, n); });
+    box.append(b);
+  }
+  box.hidden = !box.hidden;
+});
+
+/* Bring back a drawing in progress once everything above has set up. */
+setTimeout(() => { if (!grid) restoreDraft(); }, 0);
 
 /* empty-state pegboard */
 (function(){
