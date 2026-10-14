@@ -623,6 +623,12 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .importask .pick.secondary{background:var(--surface-3)}
 .boardpick{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
 .boardpick .quick{margin-top:0}
+.boardpick{flex-wrap:wrap}
+.stepper{display:flex;align-items:center;gap:2px;background:var(--surface-2);border-radius:var(--r-s);padding:2px}
+.stepper button{width:30px;height:28px;border:0;background:transparent;color:var(--ink);font:600 16px/1 var(--ui);cursor:pointer;border-radius:6px}
+.stepper button:disabled{color:var(--ink-soft);opacity:.45;cursor:default}
+.stepper button:not(:disabled):active{background:var(--surface-3)}
+.stepper span{min-width:18px;text-align:center;font:600 14px var(--ui);font-variant-numeric:tabular-nums}
 .lib li.libconfirm{flex-wrap:wrap;gap:8px 10px}
 .lib li.libconfirm .lname{white-space:normal;flex:1 1 140px;font-weight:500}
 .lib .lyes,.lib .lno{font:600 12.5px var(--ui);border-radius:var(--r-s);padding:8px 13px;cursor:pointer;flex:none}
@@ -832,6 +838,22 @@ footer p{margin:0 0 7px}
         <span class="pbnote">Board</span>
         <div class="quick" id="boardsizes"></div>
       </div>
+      <div class="boardpick">
+        <span class="pbnote">Linked</span>
+        <div class="stepper" aria-label="Boards across">
+          <button type="button" id="lx-minus" aria-label="Fewer boards across">−</button>
+          <span id="lx-val">1</span>
+          <button type="button" id="lx-plus" aria-label="More boards across">+</button>
+        </div>
+        <span class="pbnote">across</span>
+        <div class="stepper" aria-label="Boards down">
+          <button type="button" id="ly-minus" aria-label="Fewer boards down">−</button>
+          <span id="ly-val">1</span>
+          <button type="button" id="ly-plus" aria-label="More boards down">+</button>
+        </div>
+        <span class="pbnote">down</span>
+      </div>
+      <p class="note-top" id="boardsize-note" style="margin:0 0 10px"></p>
       <p class="note-top">Tap <b>+ Board</b> on a design in the library to drop it on the board, then drag it. One empty peg is always kept between designs.</p>
       <div class="quick" id="boardtools">
         <button type="button" id="bt-rot">Rotate</button>
@@ -1947,7 +1969,7 @@ function makePDF(W, H, cells, title, gridOpt){
   doc.text(
     `${W} × ${H} pegs · ${tot} beads · ${list.length} colors · `
     + `${(W*2.6/10).toFixed(1)} × ${(H*2.6/10).toFixed(1)} cm finished · `
-    + `MARD 2.6 mm` + (boardSize() ? ` · ${boardLayout()}` : ""),
+    + `MARD 2.6 mm` + (gridOpt && gridOpt.label ? ` · ${gridOpt.label}` : (boardSize() ? ` · ${boardLayout()}` : "")),
     M, M+10.5
   );
   doc.setTextColor(0);
@@ -1971,8 +1993,10 @@ function makePDF(W, H, cells, title, gridOpt){
   // grid — same convention as a printed pegboard: dashed every 5, solid every 10
   const off = gridOpt ? gridOpt.margin : 0;
   const span = gridOpt ? gridOpt.area : Infinity;
+  const tileN = gridOpt && gridOpt.tile ? gridOpt.tile : 0;
   const rule = (n) => {
-    const k = n - off, inside = k >= 0 && k <= span;
+    const k = (tileN && n > 0 && n % tileN === 0 && n < Math.max(W, H) ? tileN : (tileN ? n % tileN : n)) - off,
+          inside = k >= 0 && k <= span;
     if (inside && (k % 10 === 0 || k === span)) { doc.setLineDashPattern([], 0); doc.setDrawColor(0); doc.setLineWidth(0.45); }
     else if (inside && k % 5 === 0) { doc.setLineDashPattern([0.8, 0.8], 0); doc.setDrawColor(80); doc.setLineWidth(0.22); }
     else { doc.setLineDashPattern([], 0); doc.setDrawColor(165); doc.setLineWidth(0.1); }
@@ -2275,9 +2299,17 @@ function rebuild(pl){
 }
 
 /* ---------- placement, with a guaranteed one-peg gap ---------- */
+/* The Board tab's surface: one board, or several of the same kind linked edge
+   to edge. Each keeps its own centered printed grid. tile = pegs per board. */
+let linkX = 1, linkY = 1;
+function boardDims(){
+  const tile = boardSize() || 52;
+  return { tile, nx: linkX, ny: linkY, W: tile * linkX, H: tile * linkY };
+}
+
 function occupancy(skip){
-  const bs = boardSize() || 52;
-  const occ = new Uint8Array(bs*bs);
+  const { W, H } = boardDims();
+  const occ = new Uint8Array(W*H);
   placed.forEach((pl, idx) => {
     if (idx === skip) return;
     for (let y = 0; y < pl.h; y++) for (let x = 0; x < pl.w; x++) {
@@ -2285,7 +2317,7 @@ function occupancy(skip){
       const bx = pl.x + x, by = pl.y + y;
       for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
         const nx = bx+dx, ny = by+dy;
-        if (nx >= 0 && ny >= 0 && nx < bs && ny < bs) occ[ny*bs+nx] = 1;
+        if (nx >= 0 && ny >= 0 && nx < W && ny < H) occ[ny*W+nx] = 1;
       }
     }
   });
@@ -2293,12 +2325,12 @@ function occupancy(skip){
 }
 
 function fits(pl, x, y, skip){
-  const bs = boardSize() || 52;
-  if (x < 0 || y < 0 || x + pl.w > bs || y + pl.h > bs) return false;
+  const { W, H } = boardDims();
+  if (x < 0 || y < 0 || x + pl.w > W || y + pl.h > H) return false;
   const occ = occupancy(skip);
   for (let yy = 0; yy < pl.h; yy++) for (let xx = 0; xx < pl.w; xx++) {
     if (pl.cells[yy*pl.w+xx] === EMPTY) continue;
-    if (occ[(y+yy)*bs + (x+xx)]) return false;
+    if (occ[(y+yy)*W + (x+xx)]) return false;
   }
   return true;
 }
@@ -2307,14 +2339,14 @@ function fits(pl, x, y, skip){
    map (every bead plus its one-peg halo) is built once, and only the
    design's actual beads are tested, so odd shapes can tuck into gaps. */
 function findSpot(pl, skip = -1){
-  const bs = boardSize() || 52;
+  const { W, H } = boardDims();
   const occ = occupancy(skip);
   const beads = [];
   for (let y = 0; y < pl.h; y++) for (let x = 0; x < pl.w; x++)
-    if (pl.cells[y*pl.w + x] !== EMPTY) beads.push(y*bs + x);
-  for (let y = 0; y + pl.h <= bs; y++)
-    for (let x = 0; x + pl.w <= bs; x++) {
-      const o = y*bs + x;
+    if (pl.cells[y*pl.w + x] !== EMPTY) beads.push(y*W + x);
+  for (let y = 0; y + pl.h <= H; y++)
+    for (let x = 0; x + pl.w <= W; x++) {
+      const o = y*W + x;
       let ok = true;
       for (const b of beads) if (occ[o + b]) { ok = false; break; }
       if (ok) return { x, y };
@@ -2325,13 +2357,19 @@ function findSpot(pl, skip = -1){
 function addToBoard(entry){
   const pl = { lib: entry.id, x: 0, y: 0, rot: 0, flip: false };
   rebuild(pl);
-  const bs = boardSize() || 52;
-  if (pl.w > bs || pl.h > bs) { $("bmsg").textContent = `${entry.name} is bigger than the board.`; return; }
+  const { W, H } = boardDims();
+  /* Say why, where the person tapped: the Board panel is hidden on other tabs. */
+  const tell = t => { $("bmsg").textContent = t; $("libmsg").textContent = t; };
+  if (pl.w > W || pl.h > H) {
+    tell(`\u201C${entry.name}\u201D is ${pl.w} \u00D7 ${pl.h} \u2014 bigger than the board (${W} \u00D7 ${H}). ` +
+         `Choose a larger board or link more boards on the Board tab.`);
+    return;
+  }
   const spot = findSpot(pl);
-  if (!spot) { $("bmsg").textContent = "No room left on the board."; return; }
+  if (!spot) { tell("No room left on the board."); return; }
   pl.x = spot.x; pl.y = spot.y;
   placed.push(pl); selected = placed.length - 1;
-  $("bmsg").textContent = "";
+  $("bmsg").textContent = ""; $("libmsg").textContent = "";
   setView("board"); drawBoard(); renderBoardStats();
 }
 
@@ -2359,20 +2397,20 @@ function packBoard(){
 
 /* ---------- compose the board into one grid ---------- */
 function boardGrid(){
-  const bs = boardSize() || 52;
-  const cells = new Int32Array(bs*bs).fill(EMPTY);
+  const { W, H } = boardDims();
+  const cells = new Int32Array(W*H).fill(EMPTY);
   for (const pl of placed)
     for (let y = 0; y < pl.h; y++) for (let x = 0; x < pl.w; x++) {
       const v = pl.cells[y*pl.w+x];
       if (v === EMPTY) continue;
       const bx = pl.x+x, by = pl.y+y;
-      if (bx < bs && by < bs) cells[by*bs+bx] = v;
+      if (bx < W && by < H) cells[by*W+bx] = v;
     }
-  return { cells, size: bs };
+  return { cells, W, H };
 }
 
 function renderBoardStats(){
-  const { cells, size } = boardGrid();
+  const { cells } = boardGrid();
   const tally = new Map();
   for (const v of cells) if (v !== EMPTY) tally.set(v, (tally.get(v)||0)+1);
   const list = [...tally.entries()].sort((a,b)=>b[1]-a[1]);
@@ -2387,44 +2425,68 @@ function renderBoardStats(){
     const qt = document.createElement("span"); qt.className = "n"; qt.textContent = n;
     li.append(sw, cd, qt); ul.append(li);
   }
-  void size;
 }
 
 /* ---------- drawing ---------- */
 let boardCell = 1;
-function drawBoard(){
-  const bs = boardSize() || 52;
-  const cv = $("boardcv");
-  const cell = Math.max(6, Math.floor(1600 / bs));
-  boardCell = cell;
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  const W = bs*cell;
-  cv.width = W*dpr; cv.height = W*dpr;
-  cv.style.width = W+"px"; cv.style.height = W+"px";
-  const ctx = cv.getContext("2d");
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-
-  // pegboard
-  ctx.fillStyle = "#EDE9DF"; ctx.fillRect(0,0,W,W);
-  ctx.fillStyle = "rgba(0,0,0,.10)";
-  for (let y = 0; y < bs; y++) for (let x = 0; x < bs; x++) {
-    ctx.beginPath();
-    ctx.arc(x*cell+cell/2, y*cell+cell/2, Math.max(0.6, cell*0.17), 0, 6.2832);
-    ctx.fill();
-  }
-  // printed guides, like the real board — centered inside the printed area
+/* The empty boards, pegs and printed guides never change while you drag,
+   so they're drawn once and reused. */
+let boardBg = null, boardBgKey = "";
+function boardBackground(W, H, tile, cell, dpr){
   const { area, margin } = gridArea();
-  const g0 = margin*cell, g1 = (margin+area)*cell;
-  for (let n = 0; n <= area; n++) {
-    const v = (margin+n)*cell;
-    // widths scale with the peg size, so the guides keep their weight at any zoom
-    if (n % 10 === 0 || n === area) { ctx.setLineDash([]); ctx.strokeStyle = "rgba(70,150,200,.9)"; ctx.lineWidth = Math.max(2, cell * 0.075); }
-    else if (n % 5 === 0) { ctx.setLineDash([cell * 0.22, cell * 0.18]); ctx.strokeStyle = "rgba(70,150,200,.75)"; ctx.lineWidth = Math.max(2, cell * 0.065); }
-    else continue;
-    ctx.beginPath(); ctx.moveTo(v, g0); ctx.lineTo(v, g1); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(g0, v); ctx.lineTo(g1, v); ctx.stroke();
+  const key = [W, H, tile, cell, dpr, area, margin].join(",");
+  if (boardBgKey === key && boardBg) return boardBg;
+  const c = document.createElement("canvas");
+  c.width = Math.round(W*cell*dpr); c.height = Math.round(H*cell*dpr);
+  const ctx = c.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle = "#EDE9DF"; ctx.fillRect(0, 0, W*cell, H*cell);
+  if (cell >= 3) {
+    ctx.fillStyle = "rgba(0,0,0,.10)";
+    const r = Math.max(0.6, cell*0.17);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      ctx.beginPath(); ctx.arc(x*cell+cell/2, y*cell+cell/2, r, 0, 6.2832); ctx.fill();
+    }
+  }
+  // each board's printed guides, centered on that board
+  for (let ty = 0; ty < H / tile; ty++) for (let tx = 0; tx < W / tile; tx++) {
+    const ox = tx*tile + margin, oy = ty*tile + margin;
+    for (let n = 0; n <= area; n++) {
+      // widths scale with the peg size, so the guides keep their weight at any zoom
+      if (n % 10 === 0 || n === area) { ctx.setLineDash([]); ctx.strokeStyle = "rgba(70,150,200,.9)"; ctx.lineWidth = Math.max(2, cell * 0.075); }
+      else if (n % 5 === 0) { ctx.setLineDash([cell * 0.22, cell * 0.18]); ctx.strokeStyle = "rgba(70,150,200,.75)"; ctx.lineWidth = Math.max(2, cell * 0.065); }
+      else continue;
+      ctx.beginPath(); ctx.moveTo((ox+n)*cell, oy*cell); ctx.lineTo((ox+n)*cell, (oy+area)*cell); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox*cell, (oy+n)*cell); ctx.lineTo((ox+area)*cell, (oy+n)*cell); ctx.stroke();
+    }
   }
   ctx.setLineDash([]);
+  // where one board meets the next
+  ctx.strokeStyle = "rgba(60,50,40,.55)"; ctx.lineWidth = Math.max(2, cell * 0.14);
+  for (let x = tile; x < W; x += tile) { ctx.beginPath(); ctx.moveTo(x*cell, 0); ctx.lineTo(x*cell, H*cell); ctx.stroke(); }
+  for (let y = tile; y < H; y += tile) { ctx.beginPath(); ctx.moveTo(0, y*cell); ctx.lineTo(W*cell, y*cell); ctx.stroke(); }
+  boardBg = c; boardBgKey = key;
+  return c;
+}
+
+function drawBoard(){
+  const { W, H, tile } = boardDims();
+  const cv = $("boardcv");
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  /* iOS won't draw a canvas much over 16 million pixels, so bead size on
+     screen comes down as linked boards get large. */
+  const fitCell = Math.floor(Math.sqrt(14e6 / (W * H)) / dpr);
+  const cell = Math.max(2, Math.min(Math.floor(1600 / Math.max(W, H)) || 2, fitCell, 30));
+  boardCell = cell;
+  const CW = W*cell, CH = H*cell;
+  if (cv.width !== Math.round(CW*dpr) || cv.height !== Math.round(CH*dpr)) {
+    cv.width = Math.round(CW*dpr); cv.height = Math.round(CH*dpr);
+    cv.style.width = CW+"px"; cv.style.height = CH+"px";
+  }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.drawImage(boardBackground(W, H, tile, cell, dpr), 0, 0);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
 
   const showCodes = $("boardcodes").checked;
   placed.forEach((pl, idx) => {
@@ -2938,10 +3000,10 @@ let dragging = null, dragBad = false;
 
 function boardXY(e){
   const r = $("boardcv").getBoundingClientRect();
-  const bs = boardSize() || 52;
+  const { W, H } = boardDims();
   return {
-    x: Math.floor((e.clientX - r.left) / r.width * bs),
-    y: Math.floor((e.clientY - r.top) / r.height * bs)
+    x: Math.floor((e.clientX - r.left) / r.width * W),
+    y: Math.floor((e.clientY - r.top) / r.height * H)
   };
 }
 function hitTest(x, y){
@@ -2972,11 +3034,11 @@ $("boardcv").addEventListener("pointerdown", e => {
    back to the last legal one on release. */
 $("boardcv").addEventListener("pointermove", e => {
   if (!dragging) return;
-  const bs = boardSize() || 52;
+  const { W, H } = boardDims();
   const { x, y } = boardXY(e);
   const pl = placed[dragging.i];
-  const nx = Math.max(0, Math.min(bs - pl.w, x - dragging.dx));
-  const ny = Math.max(0, Math.min(bs - pl.h, y - dragging.dy));
+  const nx = Math.max(0, Math.min(W - pl.w, x - dragging.dx));
+  const ny = Math.max(0, Math.min(H - pl.h, y - dragging.dy));
   if (nx === pl.x && ny === pl.y) return;
   pl.x = nx; pl.y = ny;
   dragBad = !fits(pl, nx, ny, dragging.i);
@@ -3040,9 +3102,10 @@ $("bt-pdf").addEventListener("click", async () => {
   if (!placed.length) { $("bmsg").textContent = "Nothing on the board yet."; return; }
   $("bmsg").textContent = "Building the PDF…";
   await new Promise(r => setTimeout(r, 30));
-  const { cells, size } = boardGrid();
+  const { cells, W, H } = boardGrid();
+  const d = boardDims();
   try {
-    const blob = makePDF(size, size, cells, "Board layout", gridArea());
+    const blob = makePDF(W, H, cells, "Board layout", Object.assign({}, gridArea(), { tile: d.tile, label: boardLabel() }));
     if (standalone) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url; a.download = "board-layout.pdf";
@@ -3057,7 +3120,7 @@ $("bt-pdf").addEventListener("click", async () => {
 });
 
 /* ---------- which pegboard ---------- */
-const BOARD_PRESETS = [[52, 50], [78, 70]];       // pegs, printed grid
+const BOARD_PRESETS = [[52, 50], [78, 70], [104, 100]];   // pegs, printed grid
 const BOARD_KEY = "beadboard:board";
 
 function renderBoardSizes(){
@@ -3074,7 +3137,26 @@ function renderBoardSizes(){
     box.append(b);
   }
   if (!matched) box.append(Object.assign(document.createElement("span"), { className: "pbnote", textContent: "Custom " + bs + " \u00D7 " + bs }));
+  // linked boards
+  $("lx-val").textContent = linkX; $("ly-val").textContent = linkY;
+  $("lx-minus").disabled = linkX <= 1; $("lx-plus").disabled = linkX >= LINK_MAX;
+  $("ly-minus").disabled = linkY <= 1; $("ly-plus").disabled = linkY >= LINK_MAX;
+  const d = boardDims();
+  $("boardsize-note").textContent = `${d.W} \u00D7 ${d.H} pegs \u00B7 about ${(d.W*0.26).toFixed(1)} \u00D7 ${(d.H*0.26).toFixed(1)} cm` +
+    (d.nx * d.ny > 1 ? ` \u00B7 ${boardLabel()}` : "");
 }
+
+const LINK_MAX = 4;
+function boardLabel(){
+  const d = boardDims(), n = d.nx * d.ny;
+  return n > 1 ? `${d.nx} \u00D7 ${d.ny} linked ${d.tile}-peg boards` : `one ${d.tile}-peg board`;
+}
+for (const [id, dx, dy] of [["lx-minus",-1,0],["lx-plus",1,0],["ly-minus",0,-1],["ly-plus",0,1]])
+  $(id).addEventListener("click", () => {
+    linkX = Math.max(1, Math.min(LINK_MAX, linkX + dx));
+    linkY = Math.max(1, Math.min(LINK_MAX, linkY + dy));
+    boardChanged();
+  });
 
 /* After a board change, keep each design where it is if it still fits;
    otherwise find it a new spot; only if there is truly no room does it
@@ -3098,7 +3180,7 @@ function refitPlacements(){
 }
 
 function boardChanged(){
-  try { localStorage.setItem(BOARD_KEY, JSON.stringify([+$("boardpegs").value, +$("boardgrid").value])); } catch(e) {}
+  try { localStorage.setItem(BOARD_KEY, JSON.stringify([+$("boardpegs").value, +$("boardgrid").value, linkX, linkY])); } catch(e) {}
   refitPlacements();
   renderBoardSizes();
   render();
@@ -3110,7 +3192,11 @@ $("boardgrid").addEventListener("change", boardChanged);
 (function(){
   try {
     const v = JSON.parse(localStorage.getItem(BOARD_KEY) || "null");
-    if (Array.isArray(v) && v[0] >= 8) { $("boardpegs").value = v[0]; if (v[1] >= 5) $("boardgrid").value = v[1]; }
+    if (Array.isArray(v) && v[0] >= 8) {
+      $("boardpegs").value = v[0]; if (v[1] >= 5) $("boardgrid").value = v[1];
+      if (v[2] >= 1) linkX = Math.min(LINK_MAX, Math.round(v[2]));
+      if (v[3] >= 1) linkY = Math.min(LINK_MAX, Math.round(v[3]));
+    }
   } catch(e) {}
   renderBoardSizes();
 })();
@@ -3568,7 +3654,7 @@ function squirclePath(w, h, r, smoothing){
   const px = v => parseFloat(cs.getPropertyValue(v)) || 8;
   // which elements get which radius
   const groups = [
-    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno, .viewtabs button, .lib .lact"],
+    [px("--r-s"), ".quick button, .fr input, input[type=search], .lib .lyes, .lib .lno, .viewtabs button, .lib .lact, .stepper"],
     [px("--r-m"), ".pick, .viewtabs, .importask, .libediting"],
     [px("--r-l"), ".panel, .stage"]
   ];
