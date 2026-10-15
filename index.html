@@ -612,25 +612,37 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .lib .ldim{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
 .lib .ldel{background:none;border:0;color:var(--ink-soft);cursor:pointer;font:500 15px var(--ui);padding:0 3px}
 .librow{display:flex;gap:7px;margin-top:9px}
-.newsizes{margin-top:8px;justify-content:center}
+.newsizes{margin-top:12px}
+.newsizes .quick{justify-content:center;margin-top:6px}
+.sizelbl{margin:0;font-size:12px;color:var(--ink-soft);text-align:center}
+.sizesep{height:1px;background:rgba(255,255,255,.1);margin:12px 8px}
 .starttiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pick.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
   min-height:98px;padding:14px 8px;line-height:1.2;margin:0}
 .tileicon{width:32px;height:32px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .btnicon,.ctlicon{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ctlicon{width:16px;height:16px;margin-right:7px;color:var(--ink-soft);vertical-align:-3px}
+.ctl label:has(.ctlicon){justify-content:flex-start;align-items:center}
+.ctl label:has(.ctlicon) .val{margin-left:auto}
 .pick.withicon{display:flex;align-items:center;justify-content:center;gap:8px}
 .quick button{display:inline-flex;align-items:center;gap:6px}
 .quick button.iconbtn{width:44px;height:40px;padding:0;justify-content:center}
-#drawtools,#drawopts{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-#drawtools button.iconbtn,#drawopts button.iconbtn{width:auto;min-width:0}
+.drawwrap{display:flex;gap:14px;align-items:flex-start}
+.toolcol{flex:none;width:44px;position:sticky;top:10px;align-self:flex-start}
+#drawtools,#drawopts{display:flex;flex-direction:column;gap:6px;margin:0}
+.toolsep{height:1px;background:rgba(255,255,255,.1);margin:10px 4px}
+.drawmain{flex:1;min-width:0}
+.toolhead{margin:2px 0 0;font:600 16px var(--ui);color:var(--ink)}
+.toolhead:empty{display:none}
+.famdots{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:10px}
+.famdots button{aspect-ratio:1;width:100%;border-radius:50%;padding:0;border:0;cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.famdots button[data-on="1"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.swatches button[data-cur="1"]{outline:2.5px solid var(--ink);outline-offset:2px}
 .quick button.iconbtn .btnicon{width:21px;height:21px}
 #drawopts button.iconbtn[data-armed]{background:rgba(214,60,90,.32);color:var(--ink)}
 #selacts button .btnicon{width:16px;height:16px}
-.cbox{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.cbox canvas{display:block;width:100%;border-radius:8px;touch-action:none;cursor:crosshair}
-#cbox-sv{height:170px}
-#cbox-hue{height:26px}
+
 .pencur{display:flex;align-items:center;gap:10px;margin:14px 0 2px}
 .pensw{width:46px;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,.14);flex:none}
 .pensw.none,.swatches button.none{background:repeating-conic-gradient(#3a414b 0 25%, #262b32 0 50%) 50%/10px 10px !important;color:var(--ink-soft)}
@@ -859,24 +871,31 @@ footer p{margin:0 0 7px}
         <button class="pick tile" id="newdesign" type="button"><svg class="tileicon" aria-hidden="true" focusable="false"><use href="#i-newdraw"/></svg><span>New blank design</span></button>
       </div>
       <input type="file" id="file" accept="image/*">
-      <div class="quick newsizes" id="newsizes" hidden></div>
+      <div class="newsizes" id="newsizes" hidden></div>
       <button class="pick secondary withicon" id="sample"><svg class="btnicon" aria-hidden="true" focusable="false"><use href="#i-sample"/></svg>Try a sample image</button>
       <p class="tagline">Photos and pixel art into 2.6&nbsp;mm MARD bead patterns</p>
     </div>
 
     <details class="panel sec" data-sec="draw" id="drawpanel" hidden open>
       <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-draw"/></svg><h2>Draw</h2></summary>
-      <div class="quick" id="drawtools"></div>
-      <div class="quick" id="drawopts" style="margin-top:8px"></div>
+      <div class="drawwrap">
+      <div class="toolcol">
+        <div class="quick" id="drawtools"></div>
+        <div class="toolsep"></div>
+        <div class="quick" id="drawopts"></div>
+      </div>
+      <div class="drawmain">
+      <p class="toolhead" id="drawtoolname"></p>
       <div class="pencur"><span class="pensw" id="pensw"></span><span class="pencode" id="pencode"></span></div>
       <p class="drawlbl">Recent</p>
       <div class="swatches" id="penrecent"></div>
       <p class="drawlbl" id="penusedlbl">In this design</p>
       <div class="swatches" id="penused"></div>
       <div class="quick" id="pickmodes" style="margin-top:12px"></div>
-      <div class="cbox" id="cbox">
-        <canvas id="cbox-sv" aria-label="Bead colors by saturation and brightness"></canvas>
-        <canvas id="cbox-hue" aria-label="Hue"></canvas>
+      <div id="famwrap">
+        <div class="famdots" id="famdots"></div>
+        <p class="drawlbl" id="famname"></p>
+        <div class="swatches" id="famchips"></div>
       </div>
       <div class="swatches full" id="penfull" hidden></div>
       <div class="ctl" id="sizectl" style="margin-top:12px">
@@ -899,8 +918,10 @@ footer p{margin:0 0 7px}
         <div class="row"><input type="checkbox" id="seladd"><label for="seladd">Add to selection</label></div>
       </div>
       <div class="quick" id="selacts" style="margin-top:8px" hidden></div>
-      <p class="note-top" style="margin:12px 0 0"><b id="drawtoolname"></b> <span id="drawnote"></span></p>
+      <p class="note-top" id="drawnote" style="margin:12px 0 0"></p>
       <button class="pick secondary" id="backtoimage" type="button" hidden>Back to image settings</button>
+      </div>
+      </div>
     </details>
 
     <details class="panel sec" data-sec="board" id="boardpanel" hidden open>
@@ -1560,7 +1581,7 @@ function renderBgList(){
 let design = null;          // { w, h, cells: Int32Array, mask: Uint8Array, fromImage }
 let undoStack = [], redoStack = [];
 const pen = { tool: null, color: null, mirrorX: false, mirrorY: false, recent: [],
-              size: 1, opacity: 100, soft: 0, blend: "mix", selMode: "box", selAdd: false, pickMode: "box" };
+              size: 1, opacity: 100, soft: 0, blend: "mix", selMode: "box", selAdd: false, pickMode: "fam" };
 let stroke = null;
 
 function buildFromDesign(){
@@ -1618,6 +1639,7 @@ function newBlankDesign(w, h){
   $("sheetpanel").hidden = true; $("tab-sheet").hidden = true; $("assheet").checked = false;
   say(`New ${w} \u00D7 ${h} design.`);
   regenerate(); setView("preview"); syncDrawUI();
+  autosave();      // the draft always matches what's on screen
 }
 
 function leaveDesign(){
@@ -1650,9 +1672,9 @@ function addRecent(i){
   if (i === null || i === EMPTY) return;
   pen.recent = [i, ...pen.recent.filter(x => x !== i)].slice(0, 10);
 }
-function setPenColor(i, fromBox){
+function setPenColor(i, fromChips){
   pen.color = i;
-  if (!fromBox) colorBoxFollow(i);
+  if (!fromChips) famFollow(i);
   if (pen.tool !== "fill") pen.tool = "pencil";
   addRecent(i);
   syncDrawUI();
@@ -1670,7 +1692,7 @@ function buildDrawUI(){
   for (const [id, label, icon] of DRAW_TOOLS) {
     const b = document.createElement("button"); b.type = "button"; b.className = "iconbtn"; b.innerHTML = ICON(icon);
     b.title = label; b.setAttribute("aria-label", label); b.dataset.tool = id;
-    b.addEventListener("click", () => { pen.tool = pen.tool === id ? null : id;
+    b.addEventListener("click", () => { pen.tool = (pen.tool === id && !design) ? null : id;
       if (pen.tool && pen.color === null) pen.color = CODES.indexOf("H7"); syncDrawUI(); });
     $("drawtools").append(b);
   }
@@ -1700,7 +1722,7 @@ function buildDrawUI(){
     b.addEventListener("click", () => { pen[key] = id; syncDrawUI(); }); $(box).append(b); } };
   seg("blendmodes", [["mix","Mix","i-mix"],["dither","Dither","i-dither"]], "blend");
   seg("selmodes", [["box","Box","i-select"],["brush","Brush","i-sel-brush"],["color","Same color","i-wand"]], "selMode");
-  seg("pickmodes", [["box","Color box","i-color"],["all","All beads","i-preview"]], "pickMode");
+  seg("pickmodes", [["fam","Families","i-color"],["code","By code","i-codes"]], "pickMode");
   $("pensoft").addEventListener("input", () => { pen.soft = +$("pensoft").value; syncDrawUI(); });
   $("seladd").addEventListener("change", () => { pen.selAdd = $("seladd").checked; });
   for (const [id, label, icon, aria] of [["all","All","i-sel-all"],["none","None","i-sel-none"],["invert","Invert","i-invert"],
@@ -1710,7 +1732,7 @@ function buildDrawUI(){
     if (aria) b.setAttribute("aria-label", aria);
     b.addEventListener("click", () => selAction(id)); $("selacts").append(b);
   }
-  initColorBox();
+
   $("backtoimage").addEventListener("click", backToImage);
 }
 
@@ -1766,10 +1788,10 @@ function syncDrawUI(){
     b.disabled = !designing || (!["all","none","invert"].includes(b.dataset.act) && !selN) || (b.dataset.act === "none" && !selN);
 
   for (const b of $("pickmodes").children) b.dataset.on = b.dataset.val === pen.pickMode ? "1" : "0";
-  $("cbox").hidden = pen.pickMode !== "box"; $("penfull").hidden = pen.pickMode !== "all";
-  if (pen.pickMode === "box") drawColorBox();
+  $("famwrap").hidden = pen.pickMode !== "fam"; $("penfull").hidden = pen.pickMode !== "code";
+  if (pen.pickMode === "fam") renderFamilies();
   const tl = DRAW_TOOLS.find(d => d[0] === t);
-  $("drawtoolname").textContent = tl ? tl[1].replace(" a color from the design", "") : "";
+  $("drawtoolname").textContent = tl ? tl[1].replace(" a color from the design", "") : "No tool chosen";
   $("drawnote").textContent = !designing
     ? "Pick a tool and paint on the pattern. Your first stroke switches it to editing beads directly."
     : t === "select" ? "Drag a box, brush over beads, or tap a color region. While beads are selected, painting stays inside them."
@@ -1777,105 +1799,58 @@ function syncDrawUI(){
     : "One finger paints, two fingers zoom and pan. Masked pegs always stay empty, and fill stops at them.";
 }
 
-/* ---------- the color box ----------
-   An HSB picker painted in real beads: every spot shows the MARD bead
-   nearest to that hue, saturation and brightness, so what you touch is
-   exactly what you get. Saturation runs left to right, brightness top to
-   bottom; the strip underneath turns the hue. Every bead appears somewhere,
-   because each one is the nearest match to its own color. */
-const cbx = { hue: 0, s: 0.85, v: 0.85, cell: 5, grid: null, cols: 0, rows: 0, key: "" };
-function hsv2rgb(h, s, v){
-  const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); };
-  return [Math.round(f(5) * 255), Math.round(f(3) * 255), Math.round(f(1) * 255)];
+/* ---------- the color picker: paint chips ----------
+   Every bead belongs to one family, sorted light to dark, so finding a
+   color is two taps: the family, then the shade. Families come from each
+   bead's lightness, chroma and hue (OKLCh), so they follow calibration. */
+const FAMILIES = [["pinks","Pinks","E5"],["reds","Reds","F5"],["oranges","Oranges","A10"],["browns","Skin & browns","G7"],
+  ["yellows","Yellows","A5"],["greens","Greens","B5"],["teals","Teals","C11"],["blues","Blues","C9"],
+  ["purples","Purples","D6"],["grays","Black, white & gray",""]];
+function familyOf(i){
+  const [L, a, b] = LAB[i], C = Math.hypot(a, b);
+  let h = Math.atan2(b, a) * 180 / Math.PI; if (h < 0) h += 360;
+  if (C < 0.035) return "grays";
+  if ((h >= 20 && h < 80 && C < 0.11 && L < 0.9) || (h >= 20 && h < 80 && L < 0.6 && C < 0.15) ||
+      (h >= 80 && h < 100 && L < 0.85 && C < 0.09)) return "browns";
+  if (h >= 335 || h < 18) return L >= 0.5 ? "pinks" : "reds";
+  if (h < 42)  return L >= 0.8 ? "pinks" : "reds";
+  if (h < 75)  return "oranges";
+  if (h < 122) return "yellows";
+  if (h < 172) return "greens";
+  if (h < 225) return "teals";
+  if (h < 283) return "blues";
+  return "purples";
 }
-function rgb2hsv(r, g, b){
-  r /= 255; g /= 255; b /= 255;
-  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
-  let h = 0;
-  if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return [(h * 60 + 360) % 360, mx ? d / mx : 0, mx];
-}
-function beadAt(h, s, v){ const [L, A, B] = oklab(...hsv2rgb(h, s, v)); return nearestLab(L, A, B); }
-/* Point the box at a bead chosen some other way (recent, Pick, the list). */
-function colorBoxFollow(i){
-  if (i === null || i === EMPTY) return;
-  const [h, s, v] = rgb2hsv(...RGB[i]);
-  if (s > 0.06) cbx.hue = h;
-  cbx.s = s; cbx.v = v;
-}
-function drawColorBox(){
-  const sv = $("cbox-sv"), hue = $("cbox-hue");
-  const W = sv.clientWidth, H = sv.clientHeight;
-  if (!W || !H) return;
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  const cols = Math.ceil(W / cbx.cell), rows = Math.ceil(H / cbx.cell);
+let famCur = null, famKey = "";
+function famFollow(i){ if (i !== null && i !== EMPTY) famCur = familyOf(i); }
+function renderFamilies(){
+  if (!famCur) famCur = (pen.color !== null && pen.color !== EMPTY) ? familyOf(pen.color) : "reds";
+  const dots = $("famdots");
+  if (!dots.children.length) for (const [id, name, rep] of FAMILIES) {
+    const b = document.createElement("button"); b.type = "button"; b.dataset.fam = id; b.title = name; b.setAttribute("aria-label", name);
+    b.addEventListener("click", () => { famCur = id; renderFamilies(); });
+    dots.append(b);
+  }
+  for (const b of dots.children) {
+    const f = FAMILIES.find(x => x[0] === b.dataset.fam), i = f[2] ? CODES.indexOf(f[2]) : -1;
+    b.style.background = i >= 0 ? hex(i) : "linear-gradient(135deg,#f4f4f2 50%,#26282c 50%)";
+    b.dataset.on = b.dataset.fam === famCur ? "1" : "0";
+  }
   const palKey = RGB.reduce((a, c) => a + c[0] * 3 + c[1] * 5 + c[2] * 7, 0);
-  const key = [Math.round(cbx.hue), cols, rows, palKey].join("|");
-  if (key !== cbx.key) {
-    cbx.key = key; cbx.cols = cols; cbx.rows = rows; cbx.grid = new Int16Array(cols * rows);
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++)
-      cbx.grid[r * cols + c] = beadAt(cbx.hue, (c + 0.5) / cols, 1 - (r + 0.5) / rows);
+  const key = `${famCur}|${pen.color}|${palKey}`;
+  if (key === famKey) return;
+  famKey = key;
+  const members = [];
+  for (let i = 0; i < CODES.length; i++) if (familyOf(i) === famCur) members.push(i);
+  members.sort((a, b) => LAB[b][0] - LAB[a][0]);
+  const name = FAMILIES.find(x => x[0] === famCur)[1];
+  $("famname").textContent = `${name} \u00B7 ${members.length}`;
+  const box = $("famchips"); box.innerHTML = "";
+  for (const i of members) {
+    const b = swatchButton(i, j => setPenColor(j, true));
+    if (i === pen.color) b.dataset.cur = "1";
+    box.append(b);
   }
-  sv.width = W * dpr; sv.height = H * dpr;
-  const ctx = sv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const cw = W / cols, ch = H / rows;
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    const [R, G, B] = RGB[cbx.grid[r * cols + c]];
-    ctx.fillStyle = `rgb(${R},${G},${B})`;
-    ctx.fillRect(Math.floor(c * cw), Math.floor(r * ch), Math.ceil(cw) + 1, Math.ceil(ch) + 1);
-  }
-  // outline the patch of the current bead, wherever it shows up in this hue
-  if (pen.color !== null && pen.color !== EMPTY) {
-    const g = cbx.grid, cur = pen.color, segs = [];
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      if (g[r * cols + c] !== cur) continue;
-      const x = c * cw, y = r * ch;
-      if (r === 0 || g[(r - 1) * cols + c] !== cur) segs.push([x, y, x + cw, y]);
-      if (r === rows - 1 || g[(r + 1) * cols + c] !== cur) segs.push([x, y + ch, x + cw, y + ch]);
-      if (c === 0 || g[r * cols + c - 1] !== cur) segs.push([x, y, x, y + ch]);
-      if (c === cols - 1 || g[r * cols + c + 1] !== cur) segs.push([x + cw, y, x + cw, y + ch]);
-    }
-    const trace = () => { ctx.beginPath(); for (const [a, b, c2, d] of segs) { ctx.moveTo(a, b); ctx.lineTo(c2, d); } ctx.stroke(); };
-    ctx.lineCap = "round"; ctx.strokeStyle = "rgba(0,0,0,.7)"; ctx.lineWidth = 3.5; trace();
-    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.6; trace();
-  }
-  // where your finger last was
-  const mx = cbx.s * W, my = (1 - cbx.v) * H;
-  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(0,0,0,.6)"; ctx.beginPath(); ctx.arc(mx, my, 7, 0, 6.2832); ctx.stroke();
-  ctx.lineWidth = 1.5; ctx.strokeStyle = "#fff"; ctx.beginPath(); ctx.arc(mx, my, 6, 0, 6.2832); ctx.stroke();
-
-  const HW = hue.clientWidth, HH = hue.clientHeight;
-  hue.width = HW * dpr; hue.height = HH * dpr;
-  const hc = hue.getContext("2d"); hc.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const gr = hc.createLinearGradient(0, 0, HW, 0);
-  for (let k = 0; k <= 12; k++) { const [R, G, B] = hsv2rgb(k * 30, 1, 1); gr.addColorStop(k / 12, `rgb(${R},${G},${B})`); }
-  hc.fillStyle = gr; hc.fillRect(0, 0, HW, HH);
-  const hx = cbx.hue / 360 * HW;
-  hc.lineWidth = 3.5; hc.strokeStyle = "rgba(0,0,0,.55)"; hc.strokeRect(hx - 4, 1.5, 8, HH - 3);
-  hc.lineWidth = 2; hc.strokeStyle = "#fff"; hc.strokeRect(hx - 4, 1.5, 8, HH - 3);
-}
-function initColorBox(){
-  const sv = $("cbox-sv"), hue = $("cbox-hue");
-  const pickAt = e => {
-    const r = sv.getBoundingClientRect();
-    cbx.s = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    cbx.v = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / r.height));
-    const c = Math.min(cbx.cols - 1, Math.floor(cbx.s * cbx.cols)), rr = Math.min(cbx.rows - 1, Math.floor((1 - cbx.v) * cbx.rows));
-    if (cbx.grid) setPenColor(cbx.grid[rr * cbx.cols + c], true);
-  };
-  const turnHue = e => {
-    const r = hue.getBoundingClientRect();
-    cbx.hue = Math.max(0, Math.min(359.9, (e.clientX - r.left) / r.width * 360));
-    setPenColor(beadAt(cbx.hue, cbx.s, cbx.v), true);       // the color under the marker follows the hue
-  };
-  for (const [el, fn] of [[sv, pickAt], [hue, turnHue]]) {
-    let id = null;
-    el.addEventListener("pointerdown", e => { id = e.pointerId; try { el.setPointerCapture(id); } catch(_) {} fn(e); });
-    el.addEventListener("pointermove", e => { if (e.pointerId === id) fn(e); });
-    const end = e => { if (e.pointerId === id) id = null; };
-    el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
-  }
-  if (window.ResizeObserver) new ResizeObserver(() => { if (pen.pickMode === "box") drawColorBox(); }).observe(sv);
 }
 
 /* ---------- painting ---------- */
@@ -2097,7 +2072,7 @@ function cancelStroke(){
     const p = y * design.w + x;
     if (pen.tool === "pick") {
       pen.color = design.mask[p] ? EMPTY : design.cells[p];
-      colorBoxFollow(pen.color); addRecent(pen.color); pen.tool = "pencil"; syncDrawUI(); return;
+      famFollow(pen.color); addRecent(pen.color); pen.tool = "pencil"; syncDrawUI(); return;
     }
     if (pen.tool === "fill") { pushUndo(); beginPass(); floodFill(x, y); dropIfUnchanged(); addRecent(pen.color); designChanged(); return; }
     if (pen.tool === "select" && pen.selMode === "color") {
@@ -2167,6 +2142,8 @@ function autosave(){
   clearTimeout(autosaveTimer);
   autosaveTimer = setTimeout(() => {
     if (!design) return;
+    // a design with nothing on it isn't worth restoring: reopening goes to the start screen
+    if (!design.cells.some(v => v !== EMPTY) && !design.mask.some(v => v)) { clearAutosave(); return; }
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ w: design.w, h: design.h,
         rle: encodeCells(design.cells), mrle: encodeCells(design.mask), lib: editingLib || null }));
@@ -4566,13 +4543,21 @@ if (window.navigator.standalone) document.documentElement.classList.add("ios-sta
 $("newdesign").addEventListener("click", () => {
   const box = $("newsizes");
   box.innerHTML = "";
-  const tile = boardSize() || 52;
-  for (const n of [...new Set([16, 24, 32, 48, tile])]) {
-    const b = document.createElement("button"); b.type = "button";
-    b.textContent = n === tile ? `${n} \u00D7 ${n} \u00B7 one board` : `${n} \u00D7 ${n}`;
-    b.addEventListener("click", () => { box.hidden = true; newBlankDesign(n, n); });
-    box.append(b);
-  }
+  // two kinds of size: free sizes for anything, and the full pegboards
+  const group = (label, sizes, icon) => {
+    const p = document.createElement("p"); p.className = "sizelbl"; p.textContent = label;
+    const row = document.createElement("div"); row.className = "quick";
+    for (const n of sizes) {
+      const b = document.createElement("button"); b.type = "button";
+      b.innerHTML = (icon ? ICON(icon) : "") + `${n} \u00D7 ${n}`;
+      b.addEventListener("click", () => { box.hidden = true; newBlankDesign(n, n); });
+      row.append(b);
+    }
+    box.append(p, row);
+  };
+  group("Any size", [16, 24, 32, 48, 64]);
+  const sep = document.createElement("div"); sep.className = "sizesep"; box.append(sep);
+  group("Board sizes", BOARD_PRESETS.map(([pegs]) => pegs), "i-board");
   box.hidden = !box.hidden;
 });
 

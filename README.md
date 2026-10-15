@@ -11,7 +11,7 @@ Turn photos and pixel art into 2.6 mm fuse bead patterns, coded to the 221-color
 - **Photos to patterns.** Colors are matched perceptually, in OKLab rather than RGB, so skin tones and shadows hold together. A Simplify control merges colors used only a handful of times, so there are fewer bags to open.
 - **Pixel art, exactly.** Small images map one pixel to one bead, every source color gets its own bead, and transparent pixels stay as empty pegs.
 - **Sprite sheets.** Pick a single frame from a sheet, with frame-size and grid-offset controls for sheets packed without padding.
-- **Draw your own.** Paint bead by bead in the MARD palette, or touch up a converted image: pencil, eraser, fill and color picker with adjustable brush size, softness and opacity for shading (Mix blends to the nearest MARD color, Dither scatters full beads), mirror, and undo. Pick colors from a color box painted in real bead colors. Select beads to move, flip, rotate, duplicate or recolor them, and mask pegs that must stay empty.
+- **Draw your own.** Paint bead by bead in the MARD palette, or touch up a converted image: pencil, eraser, fill and color picker with adjustable brush size, softness and opacity for shading (Mix blends to the nearest MARD color, Dither scatters full beads), mirror, and undo. Pick colors by family (pinks, reds, skin and browns, blues…) with every bead sorted light to dark, or by code. Select beads to move, flip, rotate, duplicate or recolor them, and mask pegs that must stay empty.
 - **Board gap switch.** Designs normally keep one empty peg between them so they don't fuse; switch it off to let them touch or overlap.
 - **Background removal.** Clear everything touching the edges in one tap, or erase by area, by bead or by color.
 - **Color swaps.** Tap any bead to replace its color, with the closest alternatives offered first.
@@ -29,7 +29,7 @@ Designs and color adjustments are stored on each device. Use **Export** and **Im
 
 ## Maintaining it
 
-**Updating the app.** Replace `index.html`, then change `CACHE` in `sw.js` to the next version number, for example `beadboard-v22` to `beadboard-v23`. Without the bump, installed copies keep serving the old version from their offline cache. Reopen the app while online to pick up the change.
+**Updating the app.** Replace `index.html`, then change `CACHE` in `sw.js` to the next version number, for example `beadboard-v23` to `beadboard-v24`. Without the bump, installed copies keep serving the old version from their offline cache. Reopen the app while online to pick up the change.
 
 **Replacing the icons.** Swap these files, keeping the exact names and pixel sizes:
 
