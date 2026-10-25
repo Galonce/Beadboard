@@ -962,6 +962,13 @@ footer p{margin:0 0 7px}
         <div class="quick" id="blendmodes" style="margin-top:8px" hidden></div>
         <span class="note" id="blendnote" hidden></span>
       </div>
+      <div id="maskrow" hidden style="margin-top:12px">
+        <div class="holdrow">
+          <button type="button" class="holdbtn" id="maskaddbtn"><svg class="btnicon" aria-hidden="true" focusable="false"><use href="#i-mask"/></svg><span>Add</span></button>
+          <button type="button" class="holdbtn" id="maskrembtn"><svg class="btnicon" aria-hidden="true" focusable="false"><use href="#i-unmask"/></svg><span>Remove</span></button>
+        </div>
+        <p class="note-top" style="margin:6px 0 0">Hold while you paint, or tap to switch. Masked pegs always stay empty.</p>
+      </div>
       <div id="selrow" hidden style="margin-top:12px">
         <div class="quick" id="selmodes"></div>
         <div class="holdrow">
@@ -1670,11 +1677,21 @@ function renderBgList(){
 let design = null;          // { w, h, cells: Int32Array, mask: Uint8Array, fromImage }
 let undoStack = [], redoStack = [];
 const pen = { tool: null, color: null, mirrorX: false, mirrorY: false, recent: [],
-              size: 1, opacity: 100, soft: 0, blend: "mix", selMode: "box", selOp: "replace", pickMode: "fam",
+              size: 1, opacity: 100, soft: 0, blend: "mix", selMode: "box", selOp: "replace", maskOp: "add", pickMode: "fam",
               shape: { type: "rect", style: "outline", width: 1, corner: 3, sides: 6, points: 5, inner: 45, equal: false, center: false, smooth: 0 } };
 const shapeHold = { equal: false, center: false };     // buttons held down right now
 let MASK_DOT = true;
-const selHold = { add: false, remove: false };      // selection buttons held down right now
+const selHold = { add: false, remove: false };
+const maskHold = { add: false, remove: false };
+function maskOpNow(e){
+  if (maskHold.remove || (e && e.altKey)) return "remove";
+  if (maskHold.add || (e && e.shiftKey)) return "add";
+  return pen.maskOp;
+}
+/* A held Add/Remove switches a mask stroke in progress right away. */
+function remask(){
+  if (stroke && stroke.kind === "paint" && pen.tool === "mask") stroke.to = maskOpNow(stroke.keys) === "remove" ? 0 : 1;
+}      // selection buttons held down right now
 /* replace, add or remove: a held button or a modifier key wins over the latched choice */
 function selOpNow(e){
   if (selHold.remove || (e && e.altKey)) return "remove";
@@ -1845,6 +1862,11 @@ function buildDrawUI(){
     onHold:    () => { shapeHold[key] = true;  restampShape(); syncDrawUI(); },
     onRelease: () => { shapeHold[key] = false; restampShape(); syncDrawUI(); },
     onTap:     () => { pen.shape[key] = !pen.shape[key]; syncDrawUI(); } });
+  for (const [id, op] of [["maskaddbtn","add"],["maskrembtn","remove"]]) holdButton($(id), {
+    dragging: () => !!(stroke && stroke.kind === "paint" && pen.tool === "mask"),
+    onHold:    () => { maskHold[op] = true;  remask(); syncDrawUI(); },
+    onRelease: () => { maskHold[op] = false; remask(); syncDrawUI(); },
+    onTap:     () => { pen.maskOp = (op === "remove" && pen.maskOp === "remove") ? "add" : op; syncDrawUI(); } });
   for (const [id, op] of [["seladdbtn","add"],["selrembtn","remove"]]) holdButton($(id), {
     dragging: () => !!(stroke && stroke.kind === "select"),
     onHold:    () => { selHold[op] = true;  reselect(); syncDrawUI(); },
@@ -1915,6 +1937,10 @@ function syncDrawUI(){
     ? "Blends the paint with the bead underneath and uses the nearest MARD color."
     : "Places full-color beads on an even scatter of pegs.";
   $("selrow").hidden = t !== "select";
+  $("maskrow").hidden = t !== "mask";
+  for (const [id, op] of [["maskaddbtn","add"],["maskrembtn","remove"]]) {
+    $(id).dataset.on = pen.maskOp === op ? "1" : "0"; $(id).dataset.held = maskHold[op] ? "1" : "0";
+  }
   const sh = pen.shape;
   $("shapectl").hidden = t !== "shape";
   for (const b of $("shapetypes").children) b.dataset.on = b.dataset.shape === sh.type ? "1" : "0";
@@ -2615,7 +2641,8 @@ function cancelStroke(){
       return;
     }
     pushUndo(); beginPass();
-    stroke = { id: e.pointerId, kind: "paint", last: { x, y }, to: design.mask[p] ? 0 : 1 };
+    const keys = { shiftKey: e.shiftKey, altKey: e.altKey };
+    stroke = { id: e.pointerId, kind: "paint", last: { x, y }, keys, to: maskOpNow(keys) === "remove" ? 0 : 1 };
     paintCell(x, y);
     if (pen.tool === "pencil") addRecent(pen.color);
     designChanged();
@@ -2655,7 +2682,10 @@ function cancelStroke(){
     if (x === stroke.last.x && y === stroke.last.y) return;
     if (stroke.kind === "select") stroke.keys = { shiftKey: e.shiftKey, altKey: e.altKey };
     if (stroke.kind === "select" && pen.selMode === "box") boxSelect(x, y);
-    else lineCells(stroke.last.x, stroke.last.y, x, y, paintCell);
+    else {
+      if (stroke.kind === "paint" && pen.tool === "mask") { stroke.keys = { shiftKey: e.shiftKey, altKey: e.altKey }; remask(); }
+      lineCells(stroke.last.x, stroke.last.y, x, y, paintCell);
+    }
     stroke.last = { x, y };
     designChanged();
   });
