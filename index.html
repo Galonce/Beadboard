@@ -628,7 +628,15 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .quick button{display:inline-flex;align-items:center;gap:6px}
 .quick button.iconbtn{width:44px;height:40px;padding:0;justify-content:center}
 .drawwrap{display:flex;gap:14px;align-items:flex-start}
-.toolcol{flex:none;width:44px;position:sticky;top:10px;align-self:flex-start}
+.toolcol{flex:none;width:44px;position:sticky;top:10px;align-self:flex-start;
+  /* its own scroll area, no taller than the visible part of the panel */
+  max-height:calc(var(--ctrl-h, 100vh) - 24px);overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.toolcol::-webkit-scrollbar{display:none}
+/* a soft fade at whichever edge has more tools beyond it */
+.toolcol.fade-b{-webkit-mask-image:linear-gradient(#000 calc(100% - 26px),transparent);mask-image:linear-gradient(#000 calc(100% - 26px),transparent)}
+.toolcol.fade-t{-webkit-mask-image:linear-gradient(transparent,#000 26px);mask-image:linear-gradient(transparent,#000 26px)}
+.toolcol.fade-t.fade-b{-webkit-mask-image:linear-gradient(transparent,#000 26px,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(transparent,#000 26px,#000 calc(100% - 26px),transparent)}
 #drawtools,#drawopts{display:flex;flex-direction:column;gap:6px;margin:0}
 .toolsep{height:1px;background:rgba(255,255,255,.1);margin:10px 4px}
 .drawmain{flex:1;min-width:0}
@@ -4934,6 +4942,29 @@ function cancelBoardDrag(){
     else { vp.tx -= e.deltaX; vp.ty -= e.deltaY; vp.fitted = false; clampVP(); applyVP(); rememberVP(); }
   }, { passive: false });
 
+  /* The tool column scrolls on its own, sized to the visible part of the
+     panel, so every tool is reachable on a phone without scrolling the
+     content beside it. */
+  (function(){
+    const col = document.querySelector(".toolcol"), panel = $("ctrl");
+    const fade = () => {
+      col.classList.toggle("fade-t", col.scrollTop > 2);
+      col.classList.toggle("fade-b", col.scrollTop + col.clientHeight < col.scrollHeight - 2);
+    };
+    // from the column's own top edge (lower until it pins) to the bottom of the panel
+    const fit = () => {
+      const p = panel.getBoundingClientRect(), c = col.getBoundingClientRect();
+      if (!c.height && !c.top) return;                       // Draw card hidden
+      col.style.maxHeight = Math.max(160, Math.round(p.bottom - Math.max(c.top, p.top + 10) - 12)) + "px";
+      requestAnimationFrame(fade);
+    };
+    col.addEventListener("scroll", fade, { passive: true });
+    panel.addEventListener("scroll", fit, { passive: true });
+    if (window.ResizeObserver) { new ResizeObserver(fit).observe(panel); new ResizeObserver(fit).observe(col.parentElement); }
+    window.addEventListener("resize", fit);
+    fit();
+  })();
+
   /* While one finger draws or drags on the canvas, another can scroll the
      controls. Safari treats both fingers as one gesture and won't scroll the
      panel itself, so it's scrolled here. If the browser does scroll it, the
@@ -4945,12 +4976,13 @@ function cancelBoardDrag(){
     panel.addEventListener("pointerdown", e => {
       if (e.pointerType !== "touch" || !busy()) return;
       if (e.target.closest('input[type="range"], .holdbtn')) return;
-      t = { id: e.pointerId, y: e.clientY, top: panel.scrollTop };
+      const el = e.target.closest(".toolcol") || panel;
+      t = { id: e.pointerId, y: e.clientY, el, top: el.scrollTop };
     }, true);
     panel.addEventListener("pointermove", e => {
       if (!t || e.pointerId !== t.id) return;
       const want = t.top - (e.clientY - t.y);
-      if (Math.abs(panel.scrollTop - want) > 1) panel.scrollTop = want;
+      if (Math.abs(t.el.scrollTop - want) > 1) t.el.scrollTop = want;
     }, true);
     const stop = e => { if (t && e.pointerId === t.id) t = null; };
     panel.addEventListener("pointerup", stop, true);
