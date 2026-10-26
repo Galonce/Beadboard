@@ -1,0 +1,42 @@
+import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
+const b = await chromium.launch({ executablePath:'/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome', args:['--no-sandbox']});
+const ctx = await b.newContext({ viewport:{width:390,height:844}, deviceScaleFactor:2, hasTouch:true, isMobile:true });
+const page = await ctx.newPage(); const errs=[]; page.on('pageerror',e=>errs.push(e.message));
+const fails=[]; const check=(n,ok,got)=>{ console.log((ok?'ok  ':'FAIL')+' '+n+(ok?'':'  got: '+JSON.stringify(got))); if(!ok) fails.push(n); };
+await page.goto('file:///mnt/user-data/outputs/beadboard.html'); await page.waitForTimeout(700);
+await page.evaluate(()=>{ localStorage.clear(); newBlankDesign(16,16); pen.tool='mask'; pen.size=1; syncDrawUI(); document.querySelectorAll('details.sec').forEach(d=>d.open = d.dataset.sec==='draw'); });
+await page.waitForTimeout(200);
+const at = (x,y) => page.evaluate(([x,y])=>{ const r=preview.getBoundingClientRect(); return { X: r.left+(x+0.5)*r.width/gw, Y: r.top+(y+0.5)*r.height/gh }; }, [x,y]);
+const drag = async (pts) => { const a=await at(...pts[0]); await page.mouse.move(a.X,a.Y); await page.mouse.down(); for (const p of pts.slice(1)) { const c=await at(...p); await page.mouse.move(c.X,c.Y,{steps:2}); } await page.mouse.up(); await page.waitForTimeout(80); };
+const masked = () => page.evaluate(()=>design.mask.reduce((a,v)=>a+v,0));
+const row = y => page.evaluate(y=>{ let s=''; for(let x=0;x<16;x++) s+= design.mask[y*16+x]?'x':'.'; return s; }, y);
+
+check('Mask row shows for the Mask tool only, Add on by default', await page.evaluate(()=>!maskrow.hidden && maskaddbtn.dataset.on==='1' && selrow.hidden && (pen.tool='pencil', syncDrawUI(), maskrow.hidden) && (pen.tool='mask', syncDrawUI(), true)), null);
+await page.evaluate(()=>{ design.mask[2*16+2]=1; designChanged(); });
+await drag([[2,2],[8,2]]);
+check('starting on a masked peg still masks (no guessing)', (await row(2))==='..xxxxxxx.......', await row(2));
+await page.locator('#maskrembtn').scrollIntoViewIfNeeded(); await page.tap('#maskrembtn'); await page.waitForTimeout(120);
+check('tap Remove switches to unmasking', await page.evaluate(()=>pen.maskOp==='remove' && maskrembtn.dataset.on==='1' && maskaddbtn.dataset.on==='0'), null);
+await drag([[4,2],[6,2]]);
+check('Remove unmasks', (await row(2))==='..xx...xx.......', await row(2));
+await page.tap('#maskrembtn'); await page.waitForTimeout(120);
+check('tap Remove again goes back to Add', await page.evaluate(()=>pen.maskOp==='add'), null);
+await page.tap('#maskaddbtn'); await page.waitForTimeout(120);
+check('tapping Add while adding keeps Add', await page.evaluate(()=>pen.maskOp==='add'), null);
+
+// hold Remove mid-stroke: switches live, then back — on a fully masked row
+const q = async x => at(x,6);
+await page.evaluate(()=>{ for (let x=0;x<16;x++) design.mask[6*16+x]=1; designChanged(); });
+const a0=await q(0), a2=await q(2), a8=await q(8), a12=await q(12);
+await page.mouse.move(a0.X,a0.Y); await page.mouse.down(); await page.mouse.move(a2.X,a2.Y,{steps:2});
+await page.evaluate(()=>maskrembtn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:9,bubbles:true,pointerType:'touch'})));
+await page.mouse.move(a8.X,a8.Y,{steps:6});
+await page.evaluate(()=>maskrembtn.dispatchEvent(new PointerEvent('pointerup',{pointerId:9,bubbles:true,pointerType:'touch'})));
+await page.mouse.move(a12.X,a12.Y,{steps:4}); await page.mouse.up(); await page.waitForTimeout(80);
+const r6 = await row(6);
+check('hold Remove mid-stroke unmasks, release resumes masking', r6==='xx......xxxxxxxx', r6);
+check('a hold during a stroke does not switch it permanently', await page.evaluate(()=>pen.maskOp==='add'), null);
+const n = await masked(); await page.evaluate(()=>undo()); await page.waitForTimeout(60);
+check('a mask stroke is one undo step', (await masked()) !== n && await page.evaluate(()=>redoStack.length)===1, [n, await masked()]);
+console.log(`\n${fails.length ? fails.length+' FAILED' : 'all checks passed'} | page errors: ${errs.length?errs:'none'}`);
+await b.close();
