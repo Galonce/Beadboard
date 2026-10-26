@@ -656,6 +656,10 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
   font:600 14px var(--ui);display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;
   touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .holdbtn[hidden]{display:none}
+.loupe{position:fixed;z-index:60;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:6px}
+.loupe canvas{width:110px;height:110px;border-radius:50%;border:4px solid #fff;box-shadow:0 8px 22px rgba(0,0,0,.5);background:#5C5C5C}
+.loupelbl{display:flex;align-items:center;gap:6px;background:rgba(18,20,24,.92);color:#fff;border-radius:99px;padding:3px 10px 3px 4px;font:600 12px var(--mono)}
+.loupesw{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
 .holdbtn[data-on="1"]{background:var(--accent-tint);box-shadow:inset 0 0 0 2px var(--accent)}
 .holdbtn[data-on="1"]::after{content:"On";font:700 10px var(--ui);letter-spacing:.06em;text-transform:uppercase;
   background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:2px 7px;margin-left:2px}
@@ -1985,6 +1989,7 @@ function syncDrawUI(){
   $("drawtoolname").textContent = t === "ref" ? "Positioning the reference" : tl ? tl[1].replace(" a color from the design", "") : "No tool chosen";
   $("drawnote").textContent = !designing
     ? "Pick a tool and paint on the pattern. Your first stroke switches it to editing beads directly."
+    : t === "pick" ? (ref && ref.show && ref.top ? "Touch the reference and slide to aim with the magnifier; lift to pick the nearest bead to that exact spot." : "Tap a bead to use its color.")
     : t === "ref" ? "Drag to move the reference image under the pegs. Pick a drawing tool when it's in place."
     : t === "shape" ? ((pen.shape.type === "polygon" || pen.shape.type === "star")
         ? "Put your finger where the center goes and drag out: distance sets the size, direction turns it. Shapes use the current color and opacity, and stay inside a selection."
@@ -2011,6 +2016,70 @@ function drawRefLayer(ctx, cell){
   ctx.imageSmoothingEnabled = ref.smooth;
   ctx.drawImage(ref.img, r.x0*cell, r.y0*cell, r.iw*cell, r.ih*cell);
   ctx.restore();
+}
+/* What the reference shows at a point (in pegs): the pixel under the
+   finger, lightly averaged (3×3) on photos to ride over JPEG noise, exact on
+   pixel art. Only while the reference is showing on top; null outside the
+   image or where it's transparent. */
+function refSample(px, py){
+  if (!design || !ref || !ref.show || !ref.top) return null;
+  const r = refRect(), u = (px - r.x0) / r.iw, v = (py - r.y0) / r.ih;
+  if (u < 0 || v < 0 || u >= 1 || v >= 1) return null;
+  const W = ref.img.width, H = ref.img.height;
+  const ix = Math.min(W - 1, Math.floor(u * W)), iy = Math.min(H - 1, Math.floor(v * H)), k = ref.smooth ? 1 : 0;
+  const x0 = Math.max(0, ix - k), y0 = Math.max(0, iy - k), w = Math.min(W - 1, ix + k) - x0 + 1, h = Math.min(H - 1, iy + k) - y0 + 1;
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const x = c.getContext("2d", { willReadFrequently: true });
+  x.imageSmoothingEnabled = false; x.drawImage(ref.img, x0, y0, w, h, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data;
+  let R = 0, G = 0, B = 0, A = 0, n = 0;
+  for (let q = 0; q < d.length; q += 4) { R += d[q]; G += d[q+1]; B += d[q+2]; A += d[q+3]; n++; }
+  if (A / n < 128) return null;
+  const [L, a, b] = oklab(R / n, G / n, B / n);
+  return { bead: nearestLab(L, a, b), ix, iy };
+}
+
+/* The loupe: while aiming the eyedropper at the reference, a magnified view
+   floats above the finger (which would otherwise hide the very detail you're
+   after), with a crosshair on the sampled pixel and the bead it will pick. */
+let loupeEl = null;
+function showLoupe(clientX, clientY, smp){
+  if (!loupeEl) {
+    loupeEl = document.createElement("div"); loupeEl.className = "loupe";
+    loupeEl.innerHTML = '<canvas width="220" height="220"></canvas><div class="loupelbl"><span class="loupesw"></span><b></b></div>';
+    document.body.append(loupeEl);
+  }
+  const cvs = loupeEl.querySelector("canvas"), ctx = cvs.getContext("2d");
+  const W = ref.img.width, H = ref.img.height, perPeg = W / refRect().iw;
+  const span = Math.max(11, Math.min(65, Math.round(perPeg * 2.5))) | 1;      // odd, so the pixel sits in the middle
+  const half = (span - 1) / 2, k = 220 / span, sx = smp.ix - half, sy = smp.iy - half;
+  // clip the source window to the image (Safari draws nothing for out-of-bounds sources)
+  const ax = Math.max(0, sx), ay = Math.max(0, sy), bx = Math.min(W, sx + span), by = Math.min(H, sy + span);
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#5C5C5C"; ctx.fillRect(0, 0, 220, 220);
+  if (bx > ax && by > ay) ctx.drawImage(ref.img, ax, ay, bx - ax, by - ay, (ax - sx) * k, (ay - sy) * k, (bx - ax) * k, (by - ay) * k);
+  const c0 = half * k;
+  ctx.lineWidth = 4; ctx.strokeStyle = "rgba(0,0,0,.65)"; ctx.strokeRect(c0, c0, k, k);
+  ctx.lineWidth = 2; ctx.strokeStyle = "#fff"; ctx.strokeRect(c0, c0, k, k);
+  const col = hex(smp.bead);
+  cvs.style.borderColor = col;
+  loupeEl.querySelector(".loupesw").style.background = col;
+  loupeEl.querySelector("b").textContent = CODES[smp.bead];
+  // above the finger; below it if there's no room above
+  const left = Math.max(6, Math.min(window.innerWidth - 124, clientX - 59));
+  let top = clientY - 190; if (top < 6) top = clientY + 46;
+  Object.assign(loupeEl.style, { left: left + "px", top: top + "px", display: "flex" });
+}
+function hideLoupe(){ if (loupeEl) loupeEl.style.display = "none"; }
+function pickFromRef(px, py){
+  const smp = refSample(px, py);
+  if (smp) { pen.color = smp.bead; say(`Picked ${CODES[smp.bead]} from the reference.`); }
+  else {                                     // lifted outside the image: the bead there
+    const x = Math.floor(px), y = Math.floor(py);
+    if (x < 0 || y < 0 || x >= design.w || y >= design.h) return;
+    const p = y * design.w + x; pen.color = design.mask[p] ? EMPTY : design.cells[p];
+  }
+  famFollow(pen.color); addRecent(pen.color); pen.tool = "pencil"; syncDrawUI();
 }
 function refRect(){
   const fit = Math.min(design.w / ref.img.width, design.h / ref.img.height) * ref.s;
@@ -2592,6 +2661,7 @@ function cancelStroke(){
   if (!stroke) return;
   const st = stroke; stroke = null;
   if (st.kind === "ref") { ref.cx = st.cx0; ref.cy = st.cy0; drawPreview(); return; }
+  if (st.kind === "pickref") { hideLoupe(); return; }
 
   else if (undoStack.length) restoreSnap(undoStack.pop());
   designChanged();
@@ -2613,6 +2683,15 @@ function cancelStroke(){
     if (!design) { enterDesign(); buildFromDesign(); }
     const p = y * design.w + x;
     if (pen.tool === "pick") {
+      // the eyedropper picks what you see: the reference when it's on top,
+      // aimed with a magnifier and picked on lift
+      const r = cv.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width * gw, py = (e.clientY - r.top) / r.height * gh, smp = refSample(px, py);
+      if (smp) {
+        try { cv.setPointerCapture(e.pointerId); } catch(_) {}
+        stroke = { id: e.pointerId, kind: "pickref", px, py };
+        showLoupe(e.clientX, e.clientY, smp); return;
+      }
       pen.color = design.mask[p] ? EMPTY : design.cells[p];
       famFollow(pen.color); addRecent(pen.color); pen.tool = "pencil"; syncDrawUI(); return;
     }
@@ -2657,6 +2736,13 @@ function cancelStroke(){
   });
   cv.addEventListener("pointermove", e => {
     if (!stroke || e.pointerId !== stroke.id) return;
+    if (stroke.kind === "pickref") {
+      const r = cv.getBoundingClientRect();
+      stroke.px = (e.clientX - r.left) / r.width * gw; stroke.py = (e.clientY - r.top) / r.height * gh;
+      const smp = refSample(stroke.px, stroke.py);
+      if (smp) showLoupe(e.clientX, e.clientY, smp); else hideLoupe();
+      return;
+    }
     if (stroke.kind === "ref") {
       const k = gw / cv.getBoundingClientRect().width;      // screen pixels to pegs
       ref.cx = stroke.cx0 + (e.clientX - stroke.sx) * k;
@@ -2699,8 +2785,9 @@ function cancelStroke(){
   });
   const end = e => {
     if (!stroke || e.pointerId !== stroke.id) return;
-    const kind = stroke.kind; stroke = null;
+    const kind = stroke.kind, lastPick = { px: stroke.px, py: stroke.py }; stroke = null;
     if (kind === "ref") { saveRef(); return; }
+    if (kind === "pickref") { hideLoupe(); pickFromRef(lastPick.px, lastPick.py); return; }
     dropIfUnchanged();
     designChanged();
   };
