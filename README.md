@@ -19,6 +19,7 @@ Turn photos and pixel art into 2.6 mm fuse bead patterns, coded to the 221-color
 - **Pegboard layouts.** Save designs to a library, reopen them to edit, and arrange several on one board — 52, 78 or 104 pegs, or several boards linked together. An empty peg is always kept between designs so they don't fuse together, the whole board gets one combined bead list, and codes can be shown right on the beads.
 - **Charts to work from.** An on-screen code chart and a single-page vector PDF, drawn with the same guides as a printed pegboard: a solid line every 10 pegs, dashed every 5.
 - **Color calibration.** Adjust any color to match your actual beads, behind a parent PIN.
+- **Swatch board.** A printable PDF for fusing a small square of every color, on a 52, 78 or 104 board, in 3 × 3 or 4 × 3 swatches. Each row is joined into one strip so swatches keep their order, with a checklist and a mirrored back view for strips that stick to the ironing paper.
 
 ## Install on iPad or iPhone
 
@@ -30,7 +31,7 @@ Designs and color adjustments are stored on each device. Use **Export** and **Im
 
 ## Maintaining it
 
-**Updating the app.** Replace `index.html`, then change `CACHE` in `sw.js` to the next version number, for example `beadboard-v34` to `beadboard-v35`. Without the bump, installed copies keep serving the old version from their offline cache. Reopen the app while online to pick up the change.
+**Updating the app.** Replace `index.html`, then change `CACHE` in `sw.js` to the next version number, for example `beadboard-v35` to `beadboard-v36`. Without the bump, installed copies keep serving the old version from their offline cache. Reopen the app while online to pick up the change.
 
 **Replacing the icons.** Swap these files, keeping the exact names and pixel sizes:
 

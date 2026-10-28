@@ -615,6 +615,12 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .newsizes{margin-top:12px}
 .newsizes .quick{justify-content:center;margin-top:6px}
 .sizelbl{margin:0;font-size:12px;color:var(--ink-soft);text-align:center}
+.swkit{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+.swkit .swhead{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--ink)}
+.swkit .note-top{margin:0 0 4px}
+.swkit .sizelbl{text-align:left;margin-top:12px}
+.swkit .quick{margin-top:6px}
+.swkit #swinfo{margin-top:12px}
 .sizesep{height:1px;background:rgba(255,255,255,.1);margin:12px 8px}
 .starttiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pick.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
@@ -1088,6 +1094,17 @@ footer p{margin:0 0 7px}
       <summary><svg class="secicon" aria-hidden="true" focusable="false"><use href="#i-color"/></svg><h2>Color</h2></summary>
       <div id="refdetail"><p class="note-top" style="margin:12px 0 0">Tap any color to see it large, with its closest neighbors.</p></div>
       <div id="calib"></div>
+      <div class="swkit" id="swkit">
+        <p class="swhead">Swatch board</p>
+        <p class="note-top">Fuse a small square of every color to check beads against the screen or label your containers. The PDF shows where each one goes on the board.</p>
+        <p class="sizelbl">Board</p>
+        <div class="quick" id="swboard"></div>
+        <p class="sizelbl">Swatch size</p>
+        <div class="quick" id="swsize"></div>
+        <p class="msg" id="swinfo"></p>
+        <button class="pick secondary" id="swpdf" type="button">Save swatch board PDF</button>
+        <p class="msg" id="swmsg"></p>
+      </div>
     </details>
 
     <details class="panel sec" data-sec="sheet" id="sheetpanel" hidden open>
@@ -3462,6 +3479,226 @@ function makePDF(W, H, cells, title, gridOpt){
   return doc.output("blob");
 }
 
+/* ============================ swatch board ============================
+   A printable map for fusing one small square of every color, laid out in
+   catalog order. One black H7 bead joins neighbors in a row so each row
+   fuses into a strip that keeps its order; you snip swatches off as you glue.
+   If a board can't hold all 221, the layout carries on to more boards. */
+
+const SW_SIZES = [[3, 3], [4, 3]];          // beads across, beads down
+let swBoard = 78, swSize = 0;
+
+function swatchLayout(B, sw, sh){
+  const START = 1;                           // first swatch starts one peg in
+  const PX = sw + 1, PY = sh + 1;            // a swatch plus one empty peg
+  const perRow = Math.floor((B - START + 1) / PX);
+  const rowsPerBoard = Math.floor((B - START + 1) / PY);
+  const perBoard = perRow * rowsPerBoard;
+  const n = CODES.length;
+  const boards = Math.ceil(n / perBoard);
+  const cj = Math.floor(sh / 2) - (sh % 2 === 0 ? 1 : 0);   // connector row inside a swatch
+  const items = [];                          // {i, board, row, col, x, y}
+  for (let k = 0; k < n; k++) {
+    const board = Math.floor(k / perBoard), kk = k % perBoard;
+    const row = Math.floor(kk / perRow), col = kk % perRow;
+    items.push({ i: k, board, row, col, x: START + PX*col, y: START + PY*row });
+  }
+  const conns = [];                          // {board, x, y}
+  for (let k = 0; k + 1 < n; k++) {
+    const a = items[k], b = items[k+1];
+    if (a.board === b.board && a.row === b.row) conns.push({ board: a.board, x: a.x + sw, y: a.y + cj });
+  }
+  const usedRows = [];
+  for (let b = 0; b < boards; b++) {
+    const last = items.filter(t => t.board === b).reduce((m, t) => Math.max(m, t.row), 0);
+    usedRows.push(START + PY*last + sh);
+  }
+  return { B, sw, sh, START, PX, PY, perRow, rowsPerBoard, boards, cj, items, conns, usedRows,
+           beads: n*sw*sh, total: n*sw*sh + conns.length };
+}
+
+function renderSwatchKit(){
+  const bx = $("swboard"), sx = $("swsize");
+  if (!bx) return;
+  bx.innerHTML = ""; sx.innerHTML = "";
+  for (const [pegs] of BOARD_PRESETS) {
+    const b = document.createElement("button"); b.type = "button";
+    b.innerHTML = ICON("i-board") + `${pegs} \u00D7 ${pegs}`;
+    b.dataset.on = pegs === swBoard ? "1" : "0";
+    b.addEventListener("click", () => { swBoard = pegs; renderSwatchKit(); });
+    bx.append(b);
+  }
+  SW_SIZES.forEach(([w, h], k) => {
+    const b = document.createElement("button"); b.type = "button";
+    b.textContent = `${w} \u00D7 ${h}`;
+    b.title = `${w} beads across, ${h} down`;
+    b.dataset.on = k === swSize ? "1" : "0";
+    b.addEventListener("click", () => { swSize = k; renderSwatchKit(); });
+    sx.append(b);
+  });
+  const L = swatchLayout(swBoard, ...SW_SIZES[swSize]);
+  $("swinfo").textContent =
+    (L.boards === 1 ? "Fits on one board" : `Needs ${L.boards} boards`)
+    + ` \u00B7 ${L.perRow} per row \u00B7 ${L.total.toLocaleString("en-US")} beads, including ${L.conns.length} black H7 joiners`;
+}
+
+function makeSwatchPDF(B, sw, sh){
+  const { jsPDF } = window.jspdf;
+  const L = swatchLayout(B, sw, sh);
+  const G = (BOARD_PRESETS.find(([p]) => p === B) || [B, B])[1];
+  const MARGIN = (B - G) / 2;
+  const H7 = CODES.indexOf("H7");
+  const PW = 297, PH = 210, M = 12, RULER = 6, HEAD = 17, FOOT = 8;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  doc.setProperties({ title: `Swatch board \u2014 ${CODES.length} MARD colors on ${B} \u00D7 ${B}` });
+  const ink = () => doc.setTextColor(20, 33, 46), soft = () => doc.setTextColor(92, 107, 122);
+  const many = L.boards > 1;
+  const bname = b => many ? `Board ${b + 1} of ${L.boards}` : "";
+
+  const header = (title, sub) => {
+    doc.setFont("helvetica", "bold"); doc.setFontSize(15); ink();
+    doc.text(title, M, M + 5);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); soft();
+    doc.text(sub, M, M + 11, { maxWidth: PW - 2*M });
+  };
+  const fill = i => { const [r, g, b] = RGB[i]; doc.setFillColor(r, g, b); };
+  const textOn = i => isDark(i) ? doc.setTextColor(255) : doc.setTextColor(0);
+
+  const board = (bi, mirror) => {
+    const SHOW = Math.min(B, L.usedRows[bi] + 2);
+    const cell = Math.min((PW - 2*M - RULER) / B, (PH - 2*M - HEAD - FOOT - RULER) / SHOW);
+    const bw = B*cell, bh = SHOW*cell;
+    const gx = (PW - bw) / 2 + RULER/2, top = M + HEAD + RULER;
+    const mx = (i, w = 1) => mirror ? B - i - w : i;
+    const X = i => gx + i*cell, Y = j => top + j*cell;
+
+    doc.setFillColor(237, 232, 222); doc.rect(gx, top, bw, bh, "F");
+    if (!mirror) {                           // pegs and printed guides only exist on the front
+      doc.setFillColor(204, 199, 186);
+      for (let j = 0; j < SHOW; j++) for (let i = 0; i < B; i++)
+        doc.circle(X(i) + cell/2, Y(j) + cell/2, cell*0.13, "F");
+      doc.setDrawColor(69, 150, 199);
+      for (let n = 0; n <= G; n += 5) {
+        const v = MARGIN + n;
+        if (n % 10 === 0 || n === G) { doc.setLineDashPattern([], 0); doc.setLineWidth(0.21); }
+        else { doc.setLineDashPattern([0.42, 0.5], 0); doc.setLineWidth(0.16); }
+        doc.line(X(v), Y(MARGIN), X(v), Y(Math.min(MARGIN + G, SHOW)));
+        if (v <= SHOW) doc.line(X(MARGIN), Y(v), X(MARGIN + G), Y(v));
+      }
+      doc.setLineDashPattern([], 0);
+    }
+    // joiners
+    doc.setFillColor(0, 0, 0);
+    for (const c of L.conns) if (c.board === bi)
+      doc.roundedRect(X(mx(c.x)) + .18, Y(c.y) + .18, cell - .36, cell - .36, .28, .28, "F");
+    // swatches
+    const fs = Math.min(6.6, cell*sw*0.9);
+    for (const t of L.items) {
+      if (t.board !== bi) continue;
+      const x = X(mx(t.x, sw)), y = Y(t.y);
+      fill(t.i);
+      doc.roundedRect(x + .1, y + .1, sw*cell - .2, sh*cell - .2, .4, .4, "F");
+      doc.setDrawColor(150); doc.setLineWidth(0.1);
+      doc.roundedRect(x + .1, y + .1, sw*cell - .2, sh*cell - .2, .4, .4, "S");
+      textOn(t.i); doc.setFont("helvetica", "bold"); doc.setFontSize(fs);
+      doc.text(CODES[t.i], x + sw*cell/2, y + sh*cell/2, { align: "center", baseline: "middle" });
+    }
+    // rulers: front-side peg numbers, reversed when mirrored
+    doc.setFont("helvetica", "normal"); doc.setFontSize(5.6); soft();
+    for (let i = 0; i < B; i++) if ((i + 1) % 5 === 0 || i === 0)
+      doc.text(String(i + 1), X(mx(i)) + cell/2, top - 1.6, { align: "center" });
+    for (let j = 0; j < SHOW; j++) if ((j + 1) % 5 === 0 || j === 0)
+      doc.text(String(j + 1), gx - 1.4, Y(j) + cell/2 + .7, { align: "right" });
+    doc.setDrawColor(140); doc.setLineWidth(0.21);
+    doc.line(gx, top, gx + bw, top); doc.line(gx, top, gx, top + bh); doc.line(gx + bw, top, gx + bw, top + bh);
+    if (SHOW < B) { doc.setLineDashPattern([0.7, 0.7], 0); doc.line(gx, top + bh, gx + bw, top + bh); doc.setLineDashPattern([], 0); }
+    return top + bh;
+  };
+
+  const sizeTxt = `${sw} \u00D7 ${sh} beads per color (${sw} across, ${sh} down)`;
+  const across = `${L.PX}c - ${L.PX - 2}`, down = `${L.PY}r - ${L.PY - 2}`;
+  const cAcross = `${L.PX}c + ${sw - L.PX + 2}`, cDown = `${L.PY}r - ${L.PY - 2 - L.cj}`;
+  const rule = `Swatch in column c, row r starts at peg ${across} across, ${down} down. `
+             + `The joiner to its right sits at peg ${cAcross} across, ${cDown} down.`;
+
+  // ---- front of each board
+  for (let bi = 0; bi < L.boards; bi++) {
+    if (bi) doc.addPage("a4", "landscape");
+    const first = L.items.find(t => t.board === bi), last = [...L.items].reverse().find(t => t.board === bi);
+    header(`Swatch board \u2014 ${many ? `${bname(bi)}, ${CODES[first.i]} to ${CODES[last.i]}` : `all ${CODES.length} MARD colors`}`,
+      `${B} \u00D7 ${B} board \u00B7 ${sizeTxt} \u00B7 one black H7 bead joins neighbors in a row \u00B7 `
+      + `${L.beads.toLocaleString("en-US")} + ${L.conns.length} joiners = ${L.total.toLocaleString("en-US")} beads`
+      + (many ? ` across ${L.boards} boards` : ""));
+    const end = board(bi, false);
+    doc.setFont("helvetica", "italic"); doc.setFontSize(7.5); soft();
+    const rest = L.usedRows[bi] < B ? ` Rows ${L.usedRows[bi] + 1}\u2013${B} stay empty.` : "";
+    doc.text(rule + rest, (PW - 270)/2, end + 4.5, { maxWidth: 270 });
+  }
+
+  // ---- checklist
+  const rowsAll = [];
+  for (let bi = 0; bi < L.boards; bi++)
+    for (let r = 0; r < L.rowsPerBoard; r++) {
+      const its = L.items.filter(t => t.board === bi && t.row === r);
+      if (its.length) rowsAll.push({ bi, r, its });
+    }
+  const lab = 34, colw = (PW - 2*M - lab) / L.perRow, rowh = 10.6;
+  const perPage = Math.floor((PH - (M + HEAD + 2) - 10) / rowh);   // 15 rows a page
+  for (let p = 0; p * perPage < rowsAll.length; p++) {
+    doc.addPage("a4", "landscape");
+    header(p ? "Placement checklist (continued)" : "Placement checklist",
+      "Left to right in each row, with one black H7 joiner between neighbors (the dots). Tick a row once it is placed and checked.");
+    const y0 = M + HEAD + 2;
+    const chunk = rowsAll.slice(p*perPage, (p + 1)*perPage);
+    chunk.forEach(({ bi, r, its }, k) => {
+      const yy = y0 + k*rowh;
+      doc.setDrawColor(150); doc.setLineWidth(0.18); doc.rect(M, yy + 2.2, 4, 4);
+      const p0 = L.START + L.PY*r + 1;
+      doc.setFont("helvetica", "bold"); doc.setFontSize(9); ink();
+      doc.text(many ? `B${bi + 1} \u00B7 Row ${r + 1}` : `Row ${r + 1}`, M + 6, yy + 3.9);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(7); soft();
+      doc.text(`pegs ${p0}\u2013${p0 + sh - 1} down`, M + 6, yy + 7.3);
+      its.forEach((t, col) => {
+        const x = M + lab + col*colw;
+        fill(t.i); doc.roundedRect(x + .9, yy + .6, colw - 1.8, 8, .4, .4, "F");
+        textOn(t.i); doc.setFont("helvetica", "bold"); doc.setFontSize(colw < 9 ? 6.6 : 7.5);
+        doc.text(CODES[t.i], x + colw/2, yy + 4.6, { align: "center", baseline: "middle" });
+        if (col < its.length - 1) { doc.setFillColor(0, 0, 0); doc.circle(x + colw, yy + 4.6, .75, "F"); }
+      });
+      doc.setDrawColor(218); doc.setLineWidth(0.14); doc.line(M, yy + 10, PW - M, yy + 10);
+    });
+    if ((p + 1)*perPage >= rowsAll.length) {
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8); soft();
+      doc.text("After ironing, each row comes off as one strip in order. Snip one swatch free at a time as you glue it, "
+        + "and finish a row before starting the next.", M, y0 + chunk.length*rowh + 4, { maxWidth: PW - 2*M });
+    }
+  }
+
+  // ---- back of each board
+  for (let bi = 0; bi < L.boards; bi++) {
+    doc.addPage("a4", "landscape");
+    header(`From the back${many ? ` \u2014 ${bname(bi)}` : ""}: if the strips stick to the ironing paper`,
+      `Turn the paper over and the layout is mirrored: ${CODES[L.items.find(t => t.board === bi).i]} is at the top right, `
+      + "and each row reads right to left. Codes are printed the right way round.");
+    const end = board(bi, true);
+    doc.setFont("helvetica", "italic"); doc.setFontSize(7.5); soft();
+    doc.text("Peg numbers above are the front-side numbers, running right to left.", (PW - 270)/2, end + 4.5);
+  }
+  return doc.output("blob");
+}
+
+async function saveSwatchPDF(){
+  const [w, h] = SW_SIZES[swSize];
+  const m = $("swmsg");
+  m.textContent = "Building the PDF\u2026";
+  await new Promise(r => setTimeout(r, 30));
+  try {
+    const blob = makeSwatchPDF(swBoard, w, h);
+    m.textContent = "";
+    await offer(`swatch-board-${swBoard}-${w}x${h}.pdf`, blob);
+  } catch (e) { m.textContent = "Couldn't build the PDF."; }
+}
+
 /* ============================ library & board ============================ */
 
 const LIB_KEY = "beadboard:library";
@@ -5286,6 +5523,10 @@ $("newdesign").addEventListener("click", () => {
   group("Board sizes", BOARD_PRESETS.map(([pegs]) => pegs), "i-board");
   box.hidden = !box.hidden;
 });
+
+/* Swatch board in the Color panel */
+renderSwatchKit();
+$("swpdf").addEventListener("click", saveSwatchPDF);
 
 /* Bring back a drawing in progress once everything above has set up. */
 setTimeout(() => { if (!grid) restoreDraft(); }, 0);
