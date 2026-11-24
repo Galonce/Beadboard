@@ -1,5 +1,5 @@
 import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
-const b = await chromium.launch({ executablePath:'/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome', args:['--no-sandbox']});
+const b = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args:['--no-sandbox']});
 const page = await b.newPage({ viewport:{width:900,height:1100}});
 page.on('pageerror',e=>console.log('PAGEERROR:',e.message));
 page.on('dialog', d=>d.accept('T'));

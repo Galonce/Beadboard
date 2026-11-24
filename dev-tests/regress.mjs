@@ -1,11 +1,11 @@
 import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
-const b = await chromium.launch({ executablePath:'/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome', args:['--no-sandbox']});
+const b = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args:['--no-sandbox']});
 const page = await b.newPage({ viewport:{width:390,height:900}});
 const errs=[]; page.on('pageerror',e=>errs.push('PAGEERROR: '+e.message));
 await page.goto('file:///mnt/user-data/outputs/beadboard.html'); await page.waitForTimeout(600); await page.evaluate(()=>document.querySelectorAll('details.sec').forEach(d=>d.open=true));
 
 // 1. pixel art + distinct colours
-await page.setInputFiles('#file','/mnt/user-data/uploads/IMG_3989.png'); await page.waitForTimeout(1100);
+await page.setInputFiles('#file','/home/claude/sprites/photo.png'); await page.waitForTimeout(1100);
 console.log('1 gameboy   ', await page.evaluate(()=>({grid:gw+'x'+gh, src:srcColours, beads:counts.length})));
 // 2. swap
 await page.locator('#list li').nth(1).click(); await page.waitForTimeout(350);

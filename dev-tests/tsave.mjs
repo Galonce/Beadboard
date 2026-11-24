@@ -1,5 +1,5 @@
 import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
-const b = await chromium.launch({ executablePath:'/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome', args:['--no-sandbox']});
+const b = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args:['--no-sandbox']});
 
 // Reproduce the real environment: an embedded viewer where pop-ups are blocked.
 async function run(label, blockPopups, blockStorage){

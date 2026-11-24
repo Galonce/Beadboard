@@ -171,4 +171,23 @@ PY
 python3 -c "
 from PIL import Image, ImageDraw
 im=Image.new('RGB',(400,400),(40,90,200)); d=ImageDraw.Draw(im); d.rectangle([198,198,201,201], fill=(220,30,40)); im.save('/home/claude/detail.png')"
+# a photo-like test image (stands in for a real photo in regress, tboard2 and tzoom)
+# and a sprite with partly see-through pixels (for talpha)
+cd /home/claude/sprites && python3 - <<'PY2'
+from PIL import Image, ImageDraw
+import math
+im=Image.new('RGB',(900,700)); px=im.load()
+for y in range(700):
+  for x in range(900):
+    px[x,y]=(int(120+100*math.sin(x/90)), int(90+80*math.cos(y/70)), int(140+60*math.sin((x+y)/120)))
+d=ImageDraw.Draw(im); d.ellipse((250,180,650,560),fill=(230,190,150)); d.rectangle((60,60,220,300),fill=(30,60,120))
+im.save('photo.png')
+im=Image.new('RGBA',(16,16),(0,0,0,0)); p=im.load()
+for y in range(4,10):
+  for x in range(4,10): p[x,y]=(220,30,30,255)
+for x in range(5,11): p[x,11]=(0,0,0,128)
+for y in range(4,10): p[11,y]=(40,80,255,51)
+p[1,1]=(255,0,255,8)
+im.save('alpha.png'); print('made photo.png and alpha.png')
+PY2
 echo "fixtures ready"

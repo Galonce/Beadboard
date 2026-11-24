@@ -1,6 +1,6 @@
 import { chromium } from '/home/claude/.npm-global/lib/node_modules/playwright/index.mjs';
 import fs from 'fs';
-const b = await chromium.launch({ executablePath:'/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome', args:['--no-sandbox']});
+const b = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args:['--no-sandbox']});
 const ctx = await b.newContext({ viewport:{width:900,height:1100}, acceptDownloads:true });
 const page = await ctx.newPage();
 const errs=[]; page.on('pageerror',e=>errs.push('PAGEERROR: '+e.message));
@@ -8,7 +8,7 @@ page.on('dialog', d => d.accept(d.defaultValue() || 'Design'));
 await page.goto('file:///mnt/user-data/outputs/beadboard.html'); await page.waitForTimeout(700); await page.evaluate(()=>document.querySelectorAll('details.sec').forEach(d=>d.open=true));
 
 // build and save three designs of different sizes
-for (const [file, w] of [['/tmp/sprite_bg.png',24],['/mnt/user-data/uploads/IMG_3989.png',30],['/tmp/sprite_bg.png',16]]) {
+for (const [file, w] of [['/tmp/sprite_bg.png',24],['/home/claude/sprites/photo.png',30],['/tmp/sprite_bg.png',16]]) {
   await page.setInputFiles('#file', file); await page.waitForTimeout(900);
   await page.evaluate(v=>{const s=document.getElementById('w');s.value=v;s.dispatchEvent(new Event('input'));s.dispatchEvent(new Event('change'));}, w);
   await page.waitForTimeout(500);
