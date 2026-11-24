@@ -615,6 +615,16 @@ input[type=search]:focus-visible{outline:2px solid var(--accent);outline-offset:
 .newsizes{margin-top:12px}
 .newsizes .quick{justify-content:center;margin-top:6px}
 .sizelbl{margin:0;font-size:12px;color:var(--ink-soft);text-align:center}
+.alphabox{margin-top:12px}
+.alphabox .sizelbl{text-align:left;margin-top:10px}
+.alphabox .quick{margin-top:6px}
+.alphabox #ainfo{margin-top:8px}
+.abgswatch{display:inline-block;width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.quick label.abgpick{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:6px;
+  font:500 13px var(--ui);padding:6px 10px;cursor:pointer;border-radius:var(--r-s);
+  background:var(--surface-2);color:var(--ink-soft)}
+.quick label.abgpick[data-on="1"]{background:var(--accent-tint);color:var(--ink)}
+.abgpick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
 .swkit{margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
 .swkit .swhead{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--ink)}
 .swkit .note-top{margin:0 0 4px}
@@ -1179,6 +1189,18 @@ footer p{margin:0 0 7px}
         <input type="checkbox" id="speck">
         <label for="speck">Remove lone beads</label>
       </div>
+
+      <div class="alphabox" id="alphabox" hidden>
+        <div class="ctl">
+          <label for="acut">See-through pixels: bead from <span class="val" id="acutv">10%</span></label>
+          <input type="range" id="acut" min="5" max="100" value="10" step="5">
+          <span class="note">Pixels at least this solid get a bead. Fainter ones stay empty pegs.</span>
+        </div>
+        <p class="sizelbl">Their color</p>
+        <div class="quick" id="abg"></div>
+        <p class="note-top" id="abgnote" style="margin:8px 0 0"></p>
+        <p class="msg" id="ainfo"></p>
+      </div>
       <div class="row">
         <input type="checkbox" id="holes" checked>
         <label for="holes">Draw as beads</label>
@@ -1399,6 +1421,68 @@ function assignDistinct(keys){
   return map;
 }
 
+/* See-through pixels. Anything at least aCut% solid gets a bead: first it's
+   blended onto the background color (aBg), then matched like any other
+   pixel. Fainter pixels stay empty pegs. Shared by the converter, frame
+   trimming and the reference's Turn into beads. */
+const ALPHA_KEY = "beadboard:seethru";
+const ABG_PRESETS = [["Own color", "own"], ["On white", "#FFFFFF"], ["On gray", "#808080"], ["On black", "#000000"]];
+let aCut = 10, aBg = "own";             // "own" = keep the pixel's stored color, as if solid
+try { const v = JSON.parse(localStorage.getItem(ALPHA_KEY) || "null");
+      if (v) { if (v.cut >= 5 && v.cut <= 100) aCut = v.cut; if (v.bg === "own" || /^#[0-9A-F]{6}$/i.test(v.bg)) aBg = v.bg === "own" ? "own" : v.bg.toUpperCase(); } } catch(e) {}
+const alphaCutByte = () => Math.max(1, Math.round(aCut * 2.55));
+function saveAlpha(){ try { localStorage.setItem(ALPHA_KEY, JSON.stringify({ cut: aCut, bg: aBg })); } catch(e) {} }
+
+/* Blend see-through pixels in place. Returns counts for the note. */
+function flattenAlpha(data){
+  const cut = alphaCutByte(), own = aBg === "own";
+  const br = parseInt(aBg.slice(1,3),16), bgc = parseInt(aBg.slice(3,5),16), bb = parseInt(aBg.slice(5,7),16);
+  let any = false, kept = 0, dropped = 0;
+  for (let q = 0; q < data.length; q += 4) {
+    const a = data[q+3];
+    if (a === 255) continue;
+    any = true;
+    if (a < cut) { if (a > 0) dropped++; data[q+3] = 0; continue; }
+    if (own) { data[q+3] = 255; kept++; continue; }
+    const f = a / 255, g = 1 - f;
+    data[q]   = Math.round(data[q]*f   + br*g);
+    data[q+1] = Math.round(data[q+1]*f + bgc*g);
+    data[q+2] = Math.round(data[q+2]*f + bb*g);
+    data[q+3] = 255; kept++;
+  }
+  return { any, kept, dropped };
+}
+
+function renderAlphaBox(stats){
+  const box = $("alphabox"); if (!box) return;
+  box.hidden = !stats || !stats.any;
+  $("acut").value = aCut; $("acutv").textContent = aCut + "%";
+  const q = $("abg"); q.innerHTML = "";
+  let preset = false;
+  for (const [name, hx] of ABG_PRESETS) {
+    const b = document.createElement("button"); b.type = "button";
+    const sw = hx === "own" ? "linear-gradient(135deg,#E5484D 50%,#3E7BFA 50%)" : hx;
+    b.innerHTML = `<span class="abgswatch" style="background:${sw}"></span>${name}`;
+    b.dataset.on = hx === aBg ? "1" : "0"; if (hx === aBg) preset = true;
+    b.addEventListener("click", () => { aBg = hx; saveAlpha(); regenerate(); });
+    q.append(b);
+  }
+  const other = document.createElement("label");
+  other.className = "abgpick"; other.dataset.on = preset ? "0" : "1";
+  other.innerHTML = `<span class="abgswatch" style="background:${preset ? "#C8C8C8" : aBg}"></span>On other`;
+  const inp = document.createElement("input"); inp.type = "color"; inp.id = "abgpick"; inp.value = (preset ? "#C8C8C8" : aBg).toLowerCase();
+  inp.setAttribute("aria-label", "Other background color");
+  inp.addEventListener("change", () => { aBg = inp.value.toUpperCase(); saveAlpha(); regenerate(); });
+  other.append(inp); q.append(other);
+  $("abgnote").textContent = aBg === "own"
+    ? "Each kept pixel uses its own color as if it were solid, so soft edges stay crisp and in the shape's color."
+    : "Each kept pixel is blended onto this color (half see-through comes out halfway), then matched to a bead.";
+  const n = x => x.toLocaleString("en-US");
+  $("ainfo").textContent = stats && (stats.kept || stats.dropped)
+    ? `${n(stats.kept)} partly see-through pixel${stats.kept === 1 ? "" : "s"} became beads` + (stats.dropped ? ` · ${n(stats.dropped)} too faint, left empty` : "")
+    : "";
+}
+
 function buildGrid(){
   if (design) { buildFromDesign(); return; }
   if (!srcImage) return;
@@ -1424,6 +1508,7 @@ function buildGrid(){
   }
   ctx.drawImage(srcImage, sx, sy, sw, sh, 0, 0, W, H);
   const data = ctx.getImageData(0,0,W,H).data;
+  renderAlphaBox(flattenAlpha(data));
 
   // Stage 1: what distinct colors does the source actually contain?
   const tally = new Map();
@@ -2183,6 +2268,7 @@ function refToBeads(){
   } else ctx.imageSmoothingEnabled = false;
   ctx.drawImage(src, r.x0, r.y0, r.iw, r.ih);
   const data = ctx.getImageData(0, 0, W, H).data;
+  flattenAlpha(data);
 
   const tally = new Map();
   for (let p = 0; p < W*H; p++) {
@@ -3244,11 +3330,11 @@ function looksLikeSheet(img){
 function trimRect(r){
   if (!$("trim").checked) return r;
   if (!ensureAlpha(srcImage)) return r;
-  const W = srcImage.width;
+  const W = srcImage.width, cut = alphaCutByte();
   let x0 = r.x + r.w, x1 = r.x - 1, y0 = r.y + r.h, y1 = r.y - 1;
   for (let y = r.y; y < r.y + r.h; y++)
     for (let x = r.x; x < r.x + r.w; x++)
-      if (srcAlpha[y*W + x] >= 128) {
+      if (srcAlpha[y*W + x] >= cut) {
         if (x < x0) x0 = x; if (x > x1) x1 = x;
         if (y < y0) y0 = y; if (y > y1) y1 = y;
       }
@@ -4229,6 +4315,8 @@ $("link").addEventListener("change", () => {
   regenerate();
 });
 for (const id of ["smooth","speck","distinct"]) $(id).addEventListener("change", regenerate);
+$("acut").addEventListener("input", () => { $("acutv").textContent = $("acut").value + "%"; });
+$("acut").addEventListener("change", () => { aCut = +$("acut").value; saveAlpha(); regenerate(); });
 $("seams").addEventListener("change", render);
 $("boardpegs").addEventListener("change", render);
 $("boardgrid").addEventListener("input", () => { if (view === "board") drawBoard(); });
